@@ -72,4 +72,9 @@ class LocationLog: NSObject {
         
         UserDefaults.standard.set(storage, forKey: key)
     }
+    
+    func flush() {
+        all.removeAll()
+        UserDefaults.standard.set([], forKey: key)
+    }
 }

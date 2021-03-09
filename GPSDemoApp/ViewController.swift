@@ -28,8 +28,9 @@ class ViewController: UIViewController {
     private var viewModel = ViewModel()
     private var mapUI: MKMapView!
     private var settingsView: UIView!
-    private var settingsViewDistance: TextViewWithLabel!
-    private var settingsViewAccuracy: TextViewWithLabel!
+    private var settingsViewDistance: BaseControlWithLabel!
+    private var settingsViewAccuracy: BaseControlWithLabel!
+    private var settingsViewClearLog: BaseControlWithLabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,9 +55,11 @@ class ViewController: UIViewController {
 
         // set up settings view in our view
         settingsView = UIView()
-        settingsView.backgroundColor = UIColor.lightGray
-        settingsViewDistance = TextViewWithLabel.createField(named: "distance")
-        settingsViewAccuracy = TextViewWithLabel.createField(named: "accuracy")
+        settingsView.backgroundColor = UIColor.gray
+        settingsView.layer.cornerRadius = 8.0
+        settingsViewDistance = TextViewWithLabel.createField(named: "distance(m)")
+        settingsViewAccuracy = TextViewWithLabel.createField(named: "accuracy(m)")
+        settingsViewClearLog = SwitchViewWithLabel.createField(named: "reset log")
         
         // TODO -- add reset (clear log) button
         
@@ -64,26 +67,37 @@ class ViewController: UIViewController {
         closeButton.setTitle("OK", for: .normal)
         closeButton.addTarget(self, action: #selector(toggleSettings), for: .touchUpInside)
         
-        for view in [settingsView, settingsViewDistance, settingsViewAccuracy, closeButton] {
+        let openButton = UIButton()
+        openButton.setTitle("⚙", for: .normal)
+        openButton.titleLabel?.textColor = UIColor.blue
+        openButton.addTarget(self, action: #selector(toggleSettings), for: .touchUpInside)
+        
+        for view in [settingsView, settingsViewDistance, settingsViewAccuracy, settingsViewClearLog, closeButton, openButton] {
             view?.translatesAutoresizingMaskIntoConstraints = false
         }
         
         settingsView.addSubview(closeButton)
         settingsView.addSubview(settingsViewDistance)
         settingsView.addSubview(settingsViewAccuracy)
+        settingsView.addSubview(settingsViewClearLog)
         view.addSubview(settingsView)
+        view.addSubview(openButton)
+        view.bringSubviewToFront(settingsView)
 
         settingsView.addConstraints([
             // vertical constraints
             settingsView.topAnchor.constraint(equalTo: settingsViewDistance.topAnchor),
             settingsViewDistance.bottomAnchor.constraint(equalTo: settingsViewAccuracy.topAnchor),
-            settingsViewAccuracy.bottomAnchor.constraint(equalTo: closeButton.topAnchor),
+            settingsViewAccuracy.bottomAnchor.constraint(equalTo: settingsViewClearLog.topAnchor),
+            settingsViewClearLog.bottomAnchor.constraint(equalTo: closeButton.topAnchor),
             settingsView.bottomAnchor.constraint(equalTo: closeButton.bottomAnchor),
             // horizontal constraints
             settingsView.leadingAnchor.constraint(equalTo: settingsViewAccuracy.leadingAnchor),
             settingsView.trailingAnchor.constraint(equalTo: settingsViewAccuracy.trailingAnchor),
             settingsView.leadingAnchor.constraint(equalTo: settingsViewDistance.leadingAnchor),
             settingsView.trailingAnchor.constraint(equalTo: settingsViewDistance.trailingAnchor),
+            settingsView.leadingAnchor.constraint(equalTo: settingsViewClearLog.leadingAnchor),
+            settingsView.trailingAnchor.constraint(equalTo: settingsViewClearLog.trailingAnchor),
             settingsView.leadingAnchor.constraint(equalTo: closeButton.leadingAnchor),
             settingsView.trailingAnchor.constraint(equalTo: closeButton.trailingAnchor),
         ])
@@ -93,30 +107,36 @@ class ViewController: UIViewController {
             settingsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             settingsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             settingsView.topAnchor.constraint(equalTo: view.topAnchor, constant: 36),
-            settingsView.bottomAnchor.constraint(equalTo: view.topAnchor, constant: 250)
+            settingsView.bottomAnchor.constraint(equalTo: view.topAnchor, constant: 250),
+        ])
+        
+        // constraints in view for openButton
+        view.addConstraints([
+            view.trailingAnchor.constraint(equalTo: openButton.trailingAnchor),
+            view.topAnchor.constraint(equalTo: openButton.topAnchor, constant: -50),
+            view.trailingAnchor.constraint(equalTo: openButton.leadingAnchor, constant: 100),
+            view.topAnchor.constraint(equalTo: openButton.bottomAnchor, constant: -100)
         ])
     }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-    }
-    
+
     @objc func toggleSettings() {
-        guard let t1 = settingsViewAccuracy.input,
-            let t1d = Double(t1.text!),
-            let t2 = settingsViewDistance.input,
-            let t2d = Double(t2.text!)
+        guard let t1d = Double(settingsViewAccuracy.text),
+            let t2d = Double(settingsViewDistance.text)
             else {
                 return
         }
         
         settingsView.isHidden = !settingsView.isHidden
-        settingsViewDistance.input.resignFirstResponder()
-        settingsViewAccuracy.input.resignFirstResponder()
+        _ = settingsViewDistance.resignFirstResponder()
+        _ = settingsViewAccuracy.resignFirstResponder()
 
-        Settings.shared.accuracy = t1d
-        Settings.shared.distance = t2d
+        viewModel.accuracy = t1d
+        viewModel.distance = t2d
+        
+        if settingsViewClearLog.switchIsOn {
+            LocationLog.shared.flush()
+            mapUI.removeAnnotations(mapUI.annotations)
+        }
         
         MyLocationManager.shared.restart()
     }

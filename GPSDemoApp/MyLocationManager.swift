@@ -37,7 +37,7 @@ class MyLocationManager: NSObject {
         
         MyLocationManager.shared = MyLocationManager()
         
-        startObserving(doThisWhenMoved: tmp)
+        MyLocationManager.shared.startObserving(doThisWhenMoved: tmp)
         
         print("\(self) restart done")
     }
