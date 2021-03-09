@@ -27,6 +27,20 @@ class MyLocationManager: NSObject {
     func stopObserving() {
         locManager.stopUpdatingLocation()
     }
+    
+    func restart() {
+        guard let tmp = updateLocationBlock else {
+            fatalError()
+        }
+        
+        stopObserving()
+        
+        MyLocationManager.shared = MyLocationManager()
+        
+        startObserving(doThisWhenMoved: tmp)
+        
+        print("\(self) restart done")
+    }
 }
 
 extension MyLocationManager: CLLocationManagerDelegate {
@@ -34,7 +48,8 @@ extension MyLocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         print("\(self): location manager authorization changed")
         
-        locManager.distanceFilter = 10.0 // meters
+        locManager.distanceFilter = Settings.shared.distance // meters
+        locManager.desiredAccuracy = Settings.shared.accuracy
         locManager.startUpdatingLocation()
     }
     

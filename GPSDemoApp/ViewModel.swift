@@ -24,6 +24,21 @@ class ViewModel: NSObject {
         }
     }
     
+    var distance: Double = Settings.shared.distance {
+        didSet {
+            Settings.shared.distance = distance
+            self.delegate?.update()
+            MyLocationManager.shared.restart()
+        }
+    }
+    var accuracy: Double = Settings.shared.accuracy {
+        didSet {
+            Settings.shared.accuracy = accuracy
+            self.delegate?.update()
+            MyLocationManager.shared.restart()
+        }
+    }
+    
     override init() {
         super.init()
         

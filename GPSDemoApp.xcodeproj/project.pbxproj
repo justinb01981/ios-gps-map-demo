@@ -16,6 +16,8 @@
 		D0D2BD4D25F2EF56009B8BDF /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD4C25F2EF56009B8BDF /* ViewModel.swift */; };
 		D0D2BD4F25F2F014009B8BDF /* MyLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD4E25F2F014009B8BDF /* MyLocationManager.swift */; };
 		D0D2BD5125F5821C009B8BDF /* LocationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD5025F5821C009B8BDF /* LocationLog.swift */; };
+		D0D2BD5325F6D0F1009B8BDF /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD5225F6D0F1009B8BDF /* Settings.swift */; };
+		D0D2BD5525F6E6E7009B8BDF /* TextViewWithLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD5425F6E6E7009B8BDF /* TextViewWithLabel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +32,8 @@
 		D0D2BD4C25F2EF56009B8BDF /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		D0D2BD4E25F2F014009B8BDF /* MyLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyLocationManager.swift; sourceTree = "<group>"; };
 		D0D2BD5025F5821C009B8BDF /* LocationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLog.swift; sourceTree = "<group>"; };
+		D0D2BD5225F6D0F1009B8BDF /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		D0D2BD5425F6E6E7009B8BDF /* TextViewWithLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewWithLabel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,7 +71,9 @@
 				D0D2BD3C25F2EF2A009B8BDF /* ViewController.swift */,
 				D0D2BD4C25F2EF56009B8BDF /* ViewModel.swift */,
 				D0D2BD4E25F2F014009B8BDF /* MyLocationManager.swift */,
+				D0D2BD5225F6D0F1009B8BDF /* Settings.swift */,
 				D0D2BD5025F5821C009B8BDF /* LocationLog.swift */,
+				D0D2BD5425F6E6E7009B8BDF /* TextViewWithLabel.swift */,
 				D0D2BD3E25F2EF2A009B8BDF /* Main.storyboard */,
 				D0D2BD4125F2EF2B009B8BDF /* Assets.xcassets */,
 				D0D2BD4325F2EF2B009B8BDF /* LaunchScreen.storyboard */,
@@ -151,7 +157,9 @@
 				D0D2BD4F25F2F014009B8BDF /* MyLocationManager.swift in Sources */,
 				D0D2BD3925F2EF2A009B8BDF /* AppDelegate.swift in Sources */,
 				D0D2BD4D25F2EF56009B8BDF /* ViewModel.swift in Sources */,
+				D0D2BD5325F6D0F1009B8BDF /* Settings.swift in Sources */,
 				D0D2BD3B25F2EF2A009B8BDF /* SceneDelegate.swift in Sources */,
+				D0D2BD5525F6E6E7009B8BDF /* TextViewWithLabel.swift in Sources */,
 				D0D2BD5125F5821C009B8BDF /* LocationLog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
