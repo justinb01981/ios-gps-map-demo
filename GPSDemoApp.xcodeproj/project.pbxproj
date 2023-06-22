@@ -3,10 +3,15 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 53;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D07471B92A39050D00B20AD1 /* StreetSweepMgr.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */; };
+		D07471BF2A3CF66D00B20AD1 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07471BE2A3CF66D00B20AD1 /* Config.swift */; };
+		D07471C22A3D21C600B20AD1 /* streetsweeping.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D07471C02A3D21C600B20AD1 /* streetsweeping.xcdatamodeld */; };
+		D07471C42A3DAEF500B20AD1 /* RowStreetSweeping.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07471C32A3DAEF500B20AD1 /* RowStreetSweeping.swift */; };
+		D07471C62A3E253F00B20AD1 /* sweep_schedule_sf.db in Resources */ = {isa = PBXBuildFile; fileRef = D07471C52A3E253F00B20AD1 /* sweep_schedule_sf.db */; };
 		D0D2BD3925F2EF2A009B8BDF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD3825F2EF2A009B8BDF /* AppDelegate.swift */; };
 		D0D2BD3B25F2EF2A009B8BDF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD3A25F2EF2A009B8BDF /* SceneDelegate.swift */; };
 		D0D2BD3D25F2EF2A009B8BDF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD3C25F2EF2A009B8BDF /* ViewController.swift */; };
@@ -18,9 +23,20 @@
 		D0D2BD5125F5821C009B8BDF /* LocationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD5025F5821C009B8BDF /* LocationLog.swift */; };
 		D0D2BD5325F6D0F1009B8BDF /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD5225F6D0F1009B8BDF /* Settings.swift */; };
 		D0D2BD5525F6E6E7009B8BDF /* InputViewWithLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD5425F6E6E7009B8BDF /* InputViewWithLabel.swift */; };
+		E80E37476F02BFCE340ED478 /* Pods_GPSDemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5E16D3C650DB9B1CF02254A /* Pods_GPSDemoApp.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		22846B7185D5FD2A31037B48 /* Pods-GPSDemoApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GPSDemoApp.release.xcconfig"; path = "Target Support Files/Pods-GPSDemoApp/Pods-GPSDemoApp.release.xcconfig"; sourceTree = "<group>"; };
+		90F22A705D9754BAA81B877A /* Pods-GPSDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GPSDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-GPSDemoApp/Pods-GPSDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
+		C5E16D3C650DB9B1CF02254A /* Pods_GPSDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GPSDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreetSweepMgr.swift; sourceTree = "<group>"; };
+		D07471BA2A390A6300B20AD1 /* Street_Sweeping_Schedule_sf.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = Street_Sweeping_Schedule_sf.csv; sourceTree = SOURCE_ROOT; };
+		D07471BC2A395C6700B20AD1 /* CSV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CSV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D07471BE2A3CF66D00B20AD1 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		D07471C12A3D21C600B20AD1 /* streetsweeping.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = streetsweeping.xcdatamodel; sourceTree = "<group>"; };
+		D07471C32A3DAEF500B20AD1 /* RowStreetSweeping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowStreetSweeping.swift; sourceTree = "<group>"; };
+		D07471C52A3E253F00B20AD1 /* sweep_schedule_sf.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = sweep_schedule_sf.db; sourceTree = SOURCE_ROOT; };
 		D0D2BD3525F2EF2A009B8BDF /* GPSDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPSDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D2BD3825F2EF2A009B8BDF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0D2BD3A25F2EF2A009B8BDF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -41,17 +57,39 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E80E37476F02BFCE340ED478 /* Pods_GPSDemoApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0743BC50F7154F4B3A9E4987 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D07471BC2A395C6700B20AD1 /* CSV.framework */,
+				C5E16D3C650DB9B1CF02254A /* Pods_GPSDemoApp.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5D3018438EED513D576CB7BA /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				90F22A705D9754BAA81B877A /* Pods-GPSDemoApp.debug.xcconfig */,
+				22846B7185D5FD2A31037B48 /* Pods-GPSDemoApp.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		D0D2BD2C25F2EF2A009B8BDF = {
 			isa = PBXGroup;
 			children = (
+				D07471C02A3D21C600B20AD1 /* streetsweeping.xcdatamodeld */,
 				D0D2BD3725F2EF2A009B8BDF /* GPSDemoApp */,
 				D0D2BD3625F2EF2A009B8BDF /* Products */,
+				5D3018438EED513D576CB7BA /* Pods */,
+				0743BC50F7154F4B3A9E4987 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -67,16 +105,21 @@
 			isa = PBXGroup;
 			children = (
 				D0D2BD3825F2EF2A009B8BDF /* AppDelegate.swift */,
+				D07471BE2A3CF66D00B20AD1 /* Config.swift */,
 				D0D2BD3A25F2EF2A009B8BDF /* SceneDelegate.swift */,
 				D0D2BD3C25F2EF2A009B8BDF /* ViewController.swift */,
 				D0D2BD5425F6E6E7009B8BDF /* InputViewWithLabel.swift */,
 				D0D2BD4C25F2EF56009B8BDF /* ViewModel.swift */,
 				D0D2BD4E25F2F014009B8BDF /* MyLocationManager.swift */,
+				D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */,
+				D07471C32A3DAEF500B20AD1 /* RowStreetSweeping.swift */,
 				D0D2BD5225F6D0F1009B8BDF /* Settings.swift */,
 				D0D2BD5025F5821C009B8BDF /* LocationLog.swift */,
 				D0D2BD3E25F2EF2A009B8BDF /* Main.storyboard */,
 				D0D2BD4125F2EF2B009B8BDF /* Assets.xcassets */,
 				D0D2BD4325F2EF2B009B8BDF /* LaunchScreen.storyboard */,
+				D07471BA2A390A6300B20AD1 /* Street_Sweeping_Schedule_sf.csv */,
+				D07471C52A3E253F00B20AD1 /* sweep_schedule_sf.db */,
 				D0D2BD4625F2EF2B009B8BDF /* Info.plist */,
 			);
 			path = GPSDemoApp;
@@ -89,9 +132,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D0D2BD4925F2EF2B009B8BDF /* Build configuration list for PBXNativeTarget "GPSDemoApp" */;
 			buildPhases = (
+				7F7095A38A611A05CF83DEB5 /* [CP] Check Pods Manifest.lock */,
 				D0D2BD3125F2EF2A009B8BDF /* Sources */,
 				D0D2BD3225F2EF2A009B8BDF /* Frameworks */,
 				D0D2BD3325F2EF2A009B8BDF /* Resources */,
+				C7F798488B58C4D29F5862F2 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -108,8 +153,9 @@
 		D0D2BD2D25F2EF2A009B8BDF /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1130;
-				LastUpgradeCheck = 1130;
+				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "Justin Brady";
 				TargetAttributes = {
 					D0D2BD3425F2EF2A009B8BDF = {
@@ -140,6 +186,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D07471C62A3E253F00B20AD1 /* sweep_schedule_sf.db in Resources */,
 				D0D2BD4525F2EF2B009B8BDF /* LaunchScreen.storyboard in Resources */,
 				D0D2BD4225F2EF2B009B8BDF /* Assets.xcassets in Resources */,
 				D0D2BD4025F2EF2A009B8BDF /* Main.storyboard in Resources */,
@@ -148,17 +195,63 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		7F7095A38A611A05CF83DEB5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-GPSDemoApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C7F798488B58C4D29F5862F2 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GPSDemoApp/Pods-GPSDemoApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GPSDemoApp/Pods-GPSDemoApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GPSDemoApp/Pods-GPSDemoApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		D0D2BD3125F2EF2A009B8BDF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D07471B92A39050D00B20AD1 /* StreetSweepMgr.swift in Sources */,
 				D0D2BD3D25F2EF2A009B8BDF /* ViewController.swift in Sources */,
 				D0D2BD4F25F2F014009B8BDF /* MyLocationManager.swift in Sources */,
+				D07471C42A3DAEF500B20AD1 /* RowStreetSweeping.swift in Sources */,
+				D07471C22A3D21C600B20AD1 /* streetsweeping.xcdatamodeld in Sources */,
 				D0D2BD3925F2EF2A009B8BDF /* AppDelegate.swift in Sources */,
 				D0D2BD4D25F2EF56009B8BDF /* ViewModel.swift in Sources */,
 				D0D2BD5325F6D0F1009B8BDF /* Settings.swift in Sources */,
 				D0D2BD3B25F2EF2A009B8BDF /* SceneDelegate.swift in Sources */,
+				D07471BF2A3CF66D00B20AD1 /* Config.swift in Sources */,
 				D0D2BD5525F6E6E7009B8BDF /* InputViewWithLabel.swift in Sources */,
 				D0D2BD5125F5821C009B8BDF /* LocationLog.swift in Sources */,
 			);
@@ -189,13 +282,11 @@
 		D0D2BD4725F2EF2B009B8BDF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -212,6 +303,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -249,13 +341,11 @@
 		D0D2BD4825F2EF2B009B8BDF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -272,6 +362,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -302,6 +393,7 @@
 		};
 		D0D2BD4A25F2EF2B009B8BDF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 90F22A705D9754BAA81B877A /* Pods-GPSDemoApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -320,6 +412,7 @@
 		};
 		D0D2BD4B25F2EF2B009B8BDF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 22846B7185D5FD2A31037B48 /* Pods-GPSDemoApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -358,6 +451,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		D07471C02A3D21C600B20AD1 /* streetsweeping.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				D07471C12A3D21C600B20AD1 /* streetsweeping.xcdatamodel */,
+			);
+			currentVersion = D07471C12A3D21C600B20AD1 /* streetsweeping.xcdatamodel */;
+			path = streetsweeping.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = D0D2BD2D25F2EF2A009B8BDF /* Project object */;
 }

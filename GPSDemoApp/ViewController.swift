@@ -31,6 +31,9 @@ class ViewController: UIViewController {
     private var settingsViewDistance: BaseControlWithLabel!
     private var settingsViewAccuracy: BaseControlWithLabel!
     private var settingsViewClearLog: BaseControlWithLabel!
+    private var settingsViewSweeping: BaseControlWithLabel!
+
+    private var sweepingManager: StreetSweepMgr!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,12 +57,14 @@ class ViewController: UIViewController {
         ])
 
         // set up settings view in our view
-        settingsView = UIView()
+        let stack = UIStackView()
+        
+        settingsView = stack
         settingsView.backgroundColor = UIColor.gray
-        settingsView.layer.cornerRadius = 8.0
-        settingsViewDistance = TextViewWithLabel.createField(named: "distance(m)")
-        settingsViewAccuracy = TextViewWithLabel.createField(named: "accuracy(m)")
-        settingsViewClearLog = SwitchViewWithLabel.createField(named: "reset log")
+        settingsViewDistance = TextViewWithLabel(label: "distance(m)")
+        settingsViewAccuracy = TextViewWithLabel(label: "accuracy(m)")
+        settingsViewClearLog = SwitchViewWithLabel(label: "reset log")
+        settingsViewSweeping = TextViewWithLabel(label: "sweeping")
         
         // TODO -- add reset (clear log) button
         
@@ -72,7 +77,7 @@ class ViewController: UIViewController {
         openButton.titleLabel?.textColor = UIColor.blue
         openButton.addTarget(self, action: #selector(toggleSettings), for: .touchUpInside)
         
-        for view in [settingsView, settingsViewDistance, settingsViewAccuracy, settingsViewClearLog, closeButton, openButton] {
+        for view in [settingsView, settingsViewDistance, settingsViewAccuracy, settingsViewClearLog, settingsViewSweeping, closeButton, openButton] {
             view?.translatesAutoresizingMaskIntoConstraints = false
         }
         
@@ -80,16 +85,18 @@ class ViewController: UIViewController {
         settingsView.addSubview(settingsViewDistance)
         settingsView.addSubview(settingsViewAccuracy)
         settingsView.addSubview(settingsViewClearLog)
+        settingsView.addSubview(settingsViewSweeping)
         view.addSubview(settingsView)
         view.addSubview(openButton)
         view.bringSubviewToFront(settingsView)
 
         settingsView.addConstraints([
             // vertical constraints
-            settingsView.topAnchor.constraint(equalTo: settingsViewDistance.topAnchor),
+            settingsView.topAnchor.constraint(equalTo: settingsViewDistance.topAnchor, constant: -16.0),
             settingsViewDistance.bottomAnchor.constraint(equalTo: settingsViewAccuracy.topAnchor),
             settingsViewAccuracy.bottomAnchor.constraint(equalTo: settingsViewClearLog.topAnchor),
-            settingsViewClearLog.bottomAnchor.constraint(equalTo: closeButton.topAnchor),
+            settingsViewClearLog.bottomAnchor.constraint(equalTo: settingsViewSweeping.topAnchor),
+            settingsViewSweeping.bottomAnchor.constraint(equalTo: closeButton.topAnchor),
             settingsView.bottomAnchor.constraint(equalTo: closeButton.bottomAnchor),
             // horizontal constraints
             settingsView.leadingAnchor.constraint(equalTo: settingsViewAccuracy.leadingAnchor),
@@ -98,16 +105,18 @@ class ViewController: UIViewController {
             settingsView.trailingAnchor.constraint(equalTo: settingsViewDistance.trailingAnchor),
             settingsView.leadingAnchor.constraint(equalTo: settingsViewClearLog.leadingAnchor),
             settingsView.trailingAnchor.constraint(equalTo: settingsViewClearLog.trailingAnchor),
+            settingsView.leadingAnchor.constraint(equalTo: settingsViewSweeping.leadingAnchor),
+            settingsView.trailingAnchor.constraint(equalTo: settingsViewSweeping.trailingAnchor),
             settingsView.leadingAnchor.constraint(equalTo: closeButton.leadingAnchor),
             settingsView.trailingAnchor.constraint(equalTo: closeButton.trailingAnchor),
         ])
 
         // constraints in view for settingsView child
         view.addConstraints([
-            settingsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            settingsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            settingsView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16.0),
+            settingsView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16.0),
             settingsView.topAnchor.constraint(equalTo: view.topAnchor, constant: 36),
-            settingsView.bottomAnchor.constraint(equalTo: view.topAnchor, constant: 250),
+            settingsView.bottomAnchor.constraint(equalTo: closeButton.bottomAnchor),
         ])
         
         // constraints in view for openButton
@@ -119,6 +128,12 @@ class ViewController: UIViewController {
         ])
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        sweepingManager = StreetSweepMgr(city: "sf")
+    }
+
     @objc func toggleSettings() {
         guard let t1d = Double(settingsViewAccuracy.text),
             let t2d = Double(settingsViewDistance.text)
@@ -126,7 +141,7 @@ class ViewController: UIViewController {
                 return
         }
         
-        settingsView.isHidden = !settingsView.isHidden
+//        settingsView.isHidden = !settingsView.isHidden
         _ = settingsViewDistance.resignFirstResponder()
         _ = settingsViewAccuracy.resignFirstResponder()
 
@@ -162,6 +177,16 @@ extension ViewController: ViewModelDelegate {
             mapUI.camera.altitude = 1000
             mapUI.camera.centerCoordinate = CLLocationCoordinate2D(latitude: zoomLoc.lat, longitude: zoomLoc.long)
         }
+
+        let t = CLLocationCoordinate2D(latitude: viewModel.allLocations.last!.lat, longitude: viewModel.allLocations.last!.long)
+
+        guard let r = StreetSweepMgr.shared.findSchedule(t) else {
+            fatalError()
+        }
+
+        let displayStr = r.values[4]
+        settingsViewSweeping.text = displayStr
+        print(displayStr)
     }
 }
 

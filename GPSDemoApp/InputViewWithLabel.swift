@@ -9,51 +9,56 @@
 import Foundation
 import UIKit
 
-class BaseControlWithLabel: UIView {
+typealias TextInputView = UITextView
+
+protocol BaseControlWithLabel: UIView {
     
-    var input: UIView!
+    var input: UIView { get }
     
+    var text: String { get set }
+    
+    var switchIsOn: Bool { get }
+}
+
+class TextViewWithLabel: UIView, BaseControlWithLabel {
+    
+    var field: TextInputView = TextInputView()
+    var input: UIView {
+        return field as TextInputView
+    }
+
     var text: String {
         get {
-            fatalError()
+            return (input as? TextInputView)?.text ?? ""
         }
+
+        set {
+            (input as? TextInputView)?.text = newValue
+        }
+
     }
     
     var switchIsOn: Bool {
-        fatalError()
+        fatalError("TextViewWithLabel: switchIsOn called on text field")
     }
     
-    override func resignFirstResponder() -> Bool {
-        return input.resignFirstResponder()
-    }
-}
-
-class TextViewWithLabel: BaseControlWithLabel {
-    
-    private var label: UILabel!
-    
-    override var text: String {
-        get {
-            return (input as! UITextField).text ?? ""
-        }
-    }
-    
-    static func createField(named: String) -> BaseControlWithLabel {
-        let topView = self.self.init()
+    init(label text: String) {
+        super.init(frame: CGRect.zero)
+        
+        let topView = self
         
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
         
         let label = UILabel()
-        label.text = "\(named):"
+        label.text = text
         
         stackView.addArrangedSubview(label)
         
-        let input = topView.inputElement()
-        input.layer.borderWidth = 2.0
-        input.layer.cornerRadius = 8.0
-        input.layer.borderColor = UIColor.black.cgColor
+        field.frame = CGRect(x: 8, y: 8, width: 120, height: 32)
+        field.layer.borderWidth = 1.0
+        field.layer.borderColor = UIColor.white.cgColor
         
         stackView.addArrangedSubview(input)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -65,27 +70,37 @@ class TextViewWithLabel: BaseControlWithLabel {
             topView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             topView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
             // height constraint
-            topView.heightAnchor.constraint(equalToConstant: 64)
+            topView.heightAnchor.constraint(equalToConstant: 32)
         ])
-        
-        topView.label = label
-        topView.input = input
-        return topView
     }
     
-    internal func inputElement() -> UIView {
-        let input = UITextField()
-        
-        return input
+    required init(coder: NSCoder) {
+        fatalError("not implemented")
+    }
+    
+    override func resignFirstResponder() -> Bool {
+        input.resignFirstResponder()
     }
 }
 
 class SwitchViewWithLabel: TextViewWithLabel {
     
-    override internal func inputElement() -> UIView {
-        let s = UISwitch()
-        s.isOn = false
-        return s
+    let inputSwitch = UISwitch()
+    
+    override var input: UIView {
+        return inputSwitch
+    }
+    
+    override init(label text: String) {
+        super.init(label: text)
+        
+        if let stack = subviews.first as? UIStackView {
+            stack.insertSubview(inputSwitch, at: 0)
+        }
+    }
+    
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override var switchIsOn: Bool {
