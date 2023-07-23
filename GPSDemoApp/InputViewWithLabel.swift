@@ -13,27 +13,31 @@ typealias TextInputView = UITextView
 
 protocol BaseControlWithLabel: UIView {
     
-    var input: UIView { get }
+    var field: UITextView { get }
     
     var text: String { get set }
     
     var switchIsOn: Bool { get }
+
+    var height: Double { get }
 }
 
 class TextViewWithLabel: UIView, BaseControlWithLabel {
-    
-    var field: TextInputView = TextInputView()
-    var input: UIView {
-        return field as TextInputView
+
+    var labelWidth = 128.0
+    var height = 48.0
+    var fieldT: UITextView = TextInputView()
+    var field: TextInputView {
+        return fieldT
     }
 
     var text: String {
         get {
-            return (input as? TextInputView)?.text ?? ""
+            return fieldT.text
         }
 
         set {
-            (input as? TextInputView)?.text = newValue
+            fieldT.text = newValue
         }
 
     }
@@ -41,36 +45,39 @@ class TextViewWithLabel: UIView, BaseControlWithLabel {
     var switchIsOn: Bool {
         fatalError("TextViewWithLabel: switchIsOn called on text field")
     }
-    
+
     init(label text: String) {
-        super.init(frame: CGRect.zero)
-        
-        let topView = self
-        
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
+
+        super.init(frame: CGRect.infinite)
+
+        self.layer.borderColor = UIColor.gray.cgColor
+        self.layer.borderWidth = 2.0
+        //self.translatesAutoresizingMaskIntoConstraints = false
         
         let label = UILabel()
         label.text = text
-        
-        stackView.addArrangedSubview(label)
-        
-        field.frame = CGRect(x: 8, y: 8, width: 120, height: 32)
+        label.textAlignment = .center
+
+        label.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(label)
+
         field.layer.borderWidth = 1.0
-        field.layer.borderColor = UIColor.white.cgColor
-        
-        stackView.addArrangedSubview(input)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        topView.addSubview(stackView)
-        
-        topView.addConstraints([
-            topView.topAnchor.constraint(equalTo: stackView.topAnchor),
-            topView.bottomAnchor.constraint(equalTo: stackView.bottomAnchor),
-            topView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            topView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+        field.layer.borderColor = UIColor.gray.cgColor
+        field.translatesAutoresizingMaskIntoConstraints = false
+        field.isUserInteractionEnabled = false // read only for now
+        addSubview(field)
+
+        addConstraints([
+            field.topAnchor.constraint(equalTo: topAnchor),
+            field.bottomAnchor.constraint(equalTo: bottomAnchor),
+            field.leadingAnchor.constraint(equalTo: label.trailingAnchor, constant: 16.0),
+            field.trailingAnchor.constraint(equalTo: trailingAnchor),
             // height constraint
-            topView.heightAnchor.constraint(equalToConstant: 32)
+
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16.0),
+            label.topAnchor.constraint(equalTo: topAnchor),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor),
+            heightAnchor.constraint(equalToConstant: 64)
         ])
     }
     
@@ -79,7 +86,7 @@ class TextViewWithLabel: UIView, BaseControlWithLabel {
     }
     
     override func resignFirstResponder() -> Bool {
-        input.resignFirstResponder()
+        field.resignFirstResponder()
     }
 }
 
@@ -87,16 +94,11 @@ class SwitchViewWithLabel: TextViewWithLabel {
     
     let inputSwitch = UISwitch()
     
-    override var input: UIView {
-        return inputSwitch
-    }
-    
     override init(label text: String) {
         super.init(label: text)
-        
-        if let stack = subviews.first as? UIStackView {
-            stack.insertSubview(inputSwitch, at: 0)
-        }
+
+        addSubview(inputSwitch)
+        bringSubviewToFront(inputSwitch)
     }
     
     required init(coder: NSCoder) {
@@ -104,9 +106,47 @@ class SwitchViewWithLabel: TextViewWithLabel {
     }
     
     override var switchIsOn: Bool {
-        if let s = self.input as? UISwitch {
-            return s.isOn
+        fatalError("switch unfinished")
+    }
+}
+
+//
+class ButtonViewWithLabel: TextViewWithLabel {
+
+    class actionHandler: UIButton
+    {
+        var actionClo: () -> Void = {}
+        // TODO: easiest/wrongest way to catch touch events
+        override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+
+            actionClo()
         }
-        fatalError()
+    }
+
+    var handler: actionHandler!
+
+    init(named: String, withAction: @escaping () -> Void) {
+        super.init(label: named)
+
+        let c = actionHandler(frame: CGRect(x: super.labelWidth, y: 0, width: super.labelWidth, height: height))
+        c.setTitle(named, for: .normal)
+        c.backgroundColor = UIColor.green
+
+        c.actionClo = withAction
+
+        subviews.forEach({ $0.removeFromSuperview() })// clear
+
+        for d in [c] {
+            addSubview(d)
+
+            d.layer.borderColor = UIColor.black.cgColor
+            d.layer.borderWidth = 1.0
+        }
+
+    }
+
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

@@ -29,7 +29,7 @@ class MyLocationManager: NSObject {
     }
     
     func restart() {
-        guard let tmp = updateLocationBlock else {
+        guard let updateLocationBlock = updateLocationBlock else {
             fatalError()
         }
         
@@ -37,7 +37,7 @@ class MyLocationManager: NSObject {
         
         MyLocationManager.shared = MyLocationManager()
         
-        MyLocationManager.shared.startObserving(doThisWhenMoved: tmp)
+        MyLocationManager.shared.startObserving(doThisWhenMoved: updateLocationBlock)
         
         print("\(self) restart done")
     }
@@ -57,11 +57,8 @@ extension MyLocationManager: CLLocationManagerDelegate {
         guard let loc = didUpdateLocations.last else {
             return
         }
-        
-        print("\(self): updated location: \(loc)")
-        
-        LocationLog.shared.logLocation(LocationLogEntry(lat: loc.coordinate.latitude, long: loc.coordinate.longitude, time: loc.timestamp))
-        
+
+        LocationLog.shared.all += [LocationLogEntry(lat: loc.coordinate.latitude, long: loc.coordinate.longitude, time: Date())]
         updateLocationBlock?(loc)
     }
 }

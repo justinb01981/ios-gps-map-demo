@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D0118D542A5C51C3000750A3 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0118D532A5C51C3000750A3 /* ControlsView.swift */; };
+		D0118D9A2A5C643C000750A3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0118D992A5C643C000750A3 /* Main.storyboard */; };
+		D0118D9E2A5C7B7A000750A3 /* DotAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0118D9D2A5C7B7A000750A3 /* DotAnnotationView.swift */; };
+		D0118DA12A6B3990000750A3 /* CLLocation+Equabable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0118DA02A6B3990000750A3 /* CLLocation+Equabable.swift */; };
 		D07471B92A39050D00B20AD1 /* StreetSweepMgr.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */; };
 		D07471BF2A3CF66D00B20AD1 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07471BE2A3CF66D00B20AD1 /* Config.swift */; };
 		D07471C22A3D21C600B20AD1 /* streetsweeping.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D07471C02A3D21C600B20AD1 /* streetsweeping.xcdatamodeld */; };
@@ -15,7 +19,6 @@
 		D0D2BD3925F2EF2A009B8BDF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD3825F2EF2A009B8BDF /* AppDelegate.swift */; };
 		D0D2BD3B25F2EF2A009B8BDF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD3A25F2EF2A009B8BDF /* SceneDelegate.swift */; };
 		D0D2BD3D25F2EF2A009B8BDF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD3C25F2EF2A009B8BDF /* ViewController.swift */; };
-		D0D2BD4025F2EF2A009B8BDF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0D2BD3E25F2EF2A009B8BDF /* Main.storyboard */; };
 		D0D2BD4225F2EF2B009B8BDF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0D2BD4125F2EF2B009B8BDF /* Assets.xcassets */; };
 		D0D2BD4525F2EF2B009B8BDF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0D2BD4325F2EF2B009B8BDF /* LaunchScreen.storyboard */; };
 		D0D2BD4D25F2EF56009B8BDF /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D2BD4C25F2EF56009B8BDF /* ViewModel.swift */; };
@@ -30,6 +33,10 @@
 		22846B7185D5FD2A31037B48 /* Pods-GPSDemoApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GPSDemoApp.release.xcconfig"; path = "Target Support Files/Pods-GPSDemoApp/Pods-GPSDemoApp.release.xcconfig"; sourceTree = "<group>"; };
 		90F22A705D9754BAA81B877A /* Pods-GPSDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GPSDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-GPSDemoApp/Pods-GPSDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
 		C5E16D3C650DB9B1CF02254A /* Pods_GPSDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GPSDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0118D532A5C51C3000750A3 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
+		D0118D992A5C643C000750A3 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		D0118D9D2A5C7B7A000750A3 /* DotAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DotAnnotationView.swift; sourceTree = "<group>"; };
+		D0118DA02A6B3990000750A3 /* CLLocation+Equabable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocation+Equabable.swift"; sourceTree = "<group>"; };
 		D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreetSweepMgr.swift; sourceTree = "<group>"; };
 		D07471BA2A390A6300B20AD1 /* Street_Sweeping_Schedule_sf.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = Street_Sweeping_Schedule_sf.csv; sourceTree = SOURCE_ROOT; };
 		D07471BC2A395C6700B20AD1 /* CSV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CSV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -41,10 +48,8 @@
 		D0D2BD3825F2EF2A009B8BDF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0D2BD3A25F2EF2A009B8BDF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		D0D2BD3C25F2EF2A009B8BDF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		D0D2BD3F25F2EF2A009B8BDF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D0D2BD4125F2EF2B009B8BDF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0D2BD4425F2EF2B009B8BDF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		D0D2BD4625F2EF2B009B8BDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D0D2BD4C25F2EF56009B8BDF /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		D0D2BD4E25F2F014009B8BDF /* MyLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyLocationManager.swift; sourceTree = "<group>"; };
 		D0D2BD5025F5821C009B8BDF /* LocationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLog.swift; sourceTree = "<group>"; };
@@ -105,22 +110,24 @@
 			isa = PBXGroup;
 			children = (
 				D0D2BD3825F2EF2A009B8BDF /* AppDelegate.swift */,
-				D07471BE2A3CF66D00B20AD1 /* Config.swift */,
+				D0118D9D2A5C7B7A000750A3 /* DotAnnotationView.swift */,
 				D0D2BD3A25F2EF2A009B8BDF /* SceneDelegate.swift */,
 				D0D2BD3C25F2EF2A009B8BDF /* ViewController.swift */,
-				D0D2BD5425F6E6E7009B8BDF /* InputViewWithLabel.swift */,
 				D0D2BD4C25F2EF56009B8BDF /* ViewModel.swift */,
+				D0D2BD5425F6E6E7009B8BDF /* InputViewWithLabel.swift */,
+				D0118D532A5C51C3000750A3 /* ControlsView.swift */,
 				D0D2BD4E25F2F014009B8BDF /* MyLocationManager.swift */,
-				D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */,
 				D07471C32A3DAEF500B20AD1 /* RowStreetSweeping.swift */,
+				D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */,
 				D0D2BD5225F6D0F1009B8BDF /* Settings.swift */,
+				D0118DA02A6B3990000750A3 /* CLLocation+Equabable.swift */,
 				D0D2BD5025F5821C009B8BDF /* LocationLog.swift */,
-				D0D2BD3E25F2EF2A009B8BDF /* Main.storyboard */,
+				D07471BE2A3CF66D00B20AD1 /* Config.swift */,
 				D0D2BD4125F2EF2B009B8BDF /* Assets.xcassets */,
 				D0D2BD4325F2EF2B009B8BDF /* LaunchScreen.storyboard */,
 				D07471BA2A390A6300B20AD1 /* Street_Sweeping_Schedule_sf.csv */,
+				D0118D992A5C643C000750A3 /* Main.storyboard */,
 				D07471C52A3E253F00B20AD1 /* sweep_schedule_sf.db */,
-				D0D2BD4625F2EF2B009B8BDF /* Info.plist */,
 			);
 			path = GPSDemoApp;
 			sourceTree = "<group>";
@@ -189,7 +196,7 @@
 				D07471C62A3E253F00B20AD1 /* sweep_schedule_sf.db in Resources */,
 				D0D2BD4525F2EF2B009B8BDF /* LaunchScreen.storyboard in Resources */,
 				D0D2BD4225F2EF2B009B8BDF /* Assets.xcassets in Resources */,
-				D0D2BD4025F2EF2A009B8BDF /* Main.storyboard in Resources */,
+				D0118D9A2A5C643C000750A3 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -246,6 +253,8 @@
 				D0D2BD3D25F2EF2A009B8BDF /* ViewController.swift in Sources */,
 				D0D2BD4F25F2F014009B8BDF /* MyLocationManager.swift in Sources */,
 				D07471C42A3DAEF500B20AD1 /* RowStreetSweeping.swift in Sources */,
+				D0118D542A5C51C3000750A3 /* ControlsView.swift in Sources */,
+				D0118D9E2A5C7B7A000750A3 /* DotAnnotationView.swift in Sources */,
 				D07471C22A3D21C600B20AD1 /* streetsweeping.xcdatamodeld in Sources */,
 				D0D2BD3925F2EF2A009B8BDF /* AppDelegate.swift in Sources */,
 				D0D2BD4D25F2EF56009B8BDF /* ViewModel.swift in Sources */,
@@ -254,20 +263,13 @@
 				D07471BF2A3CF66D00B20AD1 /* Config.swift in Sources */,
 				D0D2BD5525F6E6E7009B8BDF /* InputViewWithLabel.swift in Sources */,
 				D0D2BD5125F5821C009B8BDF /* LocationLog.swift in Sources */,
+				D0118DA12A6B3990000750A3 /* CLLocation+Equabable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		D0D2BD3E25F2EF2A009B8BDF /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D0D2BD3F25F2EF2A009B8BDF /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		D0D2BD4325F2EF2B009B8BDF /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
