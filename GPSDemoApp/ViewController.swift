@@ -48,7 +48,9 @@ class ViewController: UIViewController {
         mapUI = MKMapView()
         mapUI.translatesAutoresizingMaskIntoConstraints = false
         mapUI.delegate = self
-        mapUI.register(DotAnnotationView.self, forAnnotationViewWithReuseIdentifier: DotAnnotationView.kDotAnnotationName)
+
+        DotAnnotationView.registerWithMap(mapUI)
+        CursorAnnotationView.registerWithMap(mapUI)
 
         view.addSubview(mapUI)
         view.addSubview(controlsView)
@@ -67,6 +69,8 @@ class ViewController: UIViewController {
         controlsView.verticalListAdd(scheduleView)
         controlsView.verticalListAdd(remindButton)
         controlsView.verticalListAdd(recenterButton)
+
+        controlsView.alpha = 0.75
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -87,10 +91,8 @@ class ViewController: UIViewController {
 
     var centeredAtStart = false
 
-    let newMarker = MKPointAnnotation()
-    let newMarkerCenter = MKPointAnnotation()
-
-    let myAnnotationsByName: [String: MKAnnotation] = [:]
+    var newMarker: MKPointAnnotation! // represents gps
+    var newMarkerCenter: MKPointAnnotation! // represents cursor
 
     var overlayHackStrokeBothsides = false
 
@@ -115,34 +117,34 @@ extension ViewController: ViewModelDelegate {
             centeredAtStart = true
         }
 
-        if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: DotAnnotationView.kDotAnnotationName)
+        if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: gpsAnnotationViewName)
         {
+            if let old = newMarker {
+                mapUI.removeAnnotation(old)
+            }
+
+            newMarker = MKPointAnnotation()
             annotGps.annotation = newMarker
             newMarker.coordinate = tailCoord
-            newMarker.title = "👩"
+            newMarker.title = gpsAnnotationViewName
 
             // TODO: move some to viewmodel
             mapUI.addAnnotation(newMarker) // repeat it anyway
         }
-
-        if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: DotAnnotationView.kDotAnnotationName)
-        {
-            annotGps.annotation = newMarkerCenter
-            newMarkerCenter.coordinate = mapUI.centerCoordinate
-            newMarkerCenter.title = "👩"
-
-            // TODO: move some to viewmodel
-            mapUI.addAnnotation(newMarkerCenter) // repeat it anyway
-        }
     }
 
     func updateSchedule(_ tailCoord: CLLocationCoordinate2D) {
+
         viewModel.sweepScheduleSearch(tailCoord) {
+
             [unowned self] foundRow in
             guard let srow = foundRow else { return }
 
+            if let removeOver = pathOverlay {
+                mapUI.removeOverlay(removeOver)
+            }
+
             if srow.line.count == 0 {
-                // nothing matched - leave polyline for now
                 return
             }
 
@@ -151,15 +153,25 @@ extension ViewController: ViewModelDelegate {
 
             let polyline = StreetSweepMgr.shared.fullRouteCoordinates(srow)
 
-            if let removeOver = pathOverlay {
-                mapUI.removeOverlay(removeOver)
-            }
-            overlayHackStrokeBothsides = srow.sideOppositeRow != nil // dumb coloring hack
+            //overlayHackStrokeBothsides = srow.sideOppositeRow != nil // dumb coloring hack
 
             pathOverlay = MKPolyline(coordinates: polyline, count: polyline.count)
             pathOverlaySide = srow.side
 
             mapUI.addOverlay(pathOverlay)
+        }
+
+        if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: CursorAnnotationViewName)
+        {
+            if let old = newMarkerCenter { mapUI.removeAnnotation(old) }
+
+            newMarkerCenter = MKPointAnnotation()
+            annotGps.annotation = newMarkerCenter
+            newMarkerCenter.coordinate = mapUI.centerCoordinate
+            newMarkerCenter.title = CursorAnnotationViewName
+
+            // TODO: move some to viewmodel
+            mapUI.addAnnotation(newMarkerCenter) // repeat it anyway
         }
     }
 }
@@ -167,7 +179,7 @@ extension ViewController: ViewModelDelegate {
 extension ViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        let annotView = mapUI.dequeueReusableAnnotationView(withIdentifier: DotAnnotationView.kDotAnnotationName)
+        let annotView = mapUI.dequeueReusableAnnotationView(withIdentifier: annotation.title!!)
         return annotView
     }
 

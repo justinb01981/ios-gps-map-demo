@@ -66,18 +66,14 @@ class ViewModel: NSObject {
 
     func refreshFromCursor() {
 
-        let refreshClo = {
-            [weak self] in
-
-            if let curs = self?.delegate.targetLocation() {
-                self?.delegate.updateSchedule(CLLocationCoordinate2D(latitude: curs.latitude, longitude: curs.longitude))
-            }
-
-            self?.refreshFromCursor()
+        if let delegate = delegate {
+            let curs = delegate.targetLocation()
+            delegate.updateSchedule(CLLocationCoordinate2D(latitude: curs.latitude, longitude: curs.longitude))
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            refreshClo()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            [weak self] in
+            self?.refreshFromCursor()
         }
     }
     
@@ -85,11 +81,10 @@ class ViewModel: NSObject {
         super.init()
 
         MyLocationManager.shared.startObserving { (location) in
-            self.refreshFromCursor()
-
             self.delegate.updatedMyLocation(location.coordinate)
         }
 
+        refreshFromCursor()
     }
     
     deinit {

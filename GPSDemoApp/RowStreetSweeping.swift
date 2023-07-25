@@ -54,6 +54,9 @@ var line: SQLite.ColumnDefinition = .init(name: "Line", type: .TEXT)
 fileprivate let wktpfx = "LINESTRING ("
 fileprivate let THEWEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Holiday"]
 
+// TODO: tweak this based on rows
+fileprivate let LEFTRIGHT_BIAS = 0.0000000000001
+
 typealias RowValues = [String]
 
 enum StreetSide: String {
@@ -108,9 +111,10 @@ enum RowFields: Int {
 class RowStreetSweeping: NSObject {
 
     var line: [CLLocationCoordinate2D]
+    var lineLength: Double
     var name: String
     var schedText: String
-    var timeRemain: Double
+    var timeExpire: Date
     var dayI: Int
     var blockSweepId: Int
 
@@ -126,7 +130,7 @@ class RowStreetSweeping: NSObject {
         guard an.count != RowFields.Last.rawValue else {
             return nil
         }
-
+        
         values = an // moved outside hack
 
         let lineVals = values[RowFields.Line.rawValue]
@@ -163,34 +167,45 @@ class RowStreetSweeping: NSObject {
 
             let cal = Calendar(identifier: .gregorian)
 
-            let dname = self.values[RowFields.WeekDay.rawValue]
+            var dname = self.values[RowFields.WeekDay.rawValue]
+
+            if dname == "Holiday" {
+                //dname = "Sunday" // TODO: FIX THIS once I'm sane again
+                return nil
+            }
 
             if let dayI = THEWEEK.firstIndex(where: { $0.contains(dname) }) {
 
-                guard let dest = cal.nextDate(after: Date(), matching: DateComponents(day: dayI+1), matchingPolicy: .nextTime)
+                guard let dest = cal.nextDate(after: Date(), matching: DateComponents(weekday: dayI+1), matchingPolicy: .nextTime)
                 else {
                     fatalError()
                 }
-
+                self.timeExpire = dest
                 self.dayI = dayI
-                timeRemain = Double(dest.timeIntervalSince(Date())  / 86400 )//days
             }
             else
             {
-                timeRemain = 0
+                timeExpire = Date(timeIntervalSince1970: 0.0)
                 fatalError()
             }
+
+            lineLength = 0
 
             for idx in 0..<tokes.count {
 
                 let vtxn = tokes[idx]
-//                let la = -1 / vtxn.latitude / vtxn.longitude * (side == .L ? 0.00000000001 : -0.00000000001)
-//                let lo = -1 / vtxi.latitude / vtxi.longitude * (side == .L ? -0.00000000001 : 0.00000000001)
-                let vtx = [CLLocationCoordinate2D(latitude: vtxn.latitude /*  + (side == .L ? 0.000000000000001 : -0.000000000000001)*/ ,
-                                                  longitude: vtxn.longitude /*   + (side == .L ? 0.000000000000001 : -0.000000000000001) */)  ]
+                let rise = vtxn.latitude / vtxn.longitude
+                let la = 0.0 //vtxn.latitude * (-1 / rise) * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
+                let lo = 0.0 //vtxn.longitude / (-1 / rise) * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
+                let vtx = [CLLocationCoordinate2D(latitude: vtxn.latitude   + la,
+                                                  longitude: vtxn.longitude + lo)  ]
 
                 // HACK: tweak coordinates lat/long slightly so the rows for r/l are distinct and can be highlighted on the map
                 self.line += vtx
+
+                if idx > 0 {
+                    lineLength += dist2(line[idx].latitude, line[idx].longitude, line[idx-1].latitude, line[idx-1].longitude)// calculating full length
+                }
             }
         }
         else {
@@ -198,43 +213,63 @@ class RowStreetSweeping: NSObject {
             return nil
         }
     }
+
+    static let rowSchedFormat: (RowStreetSweeping)->(String) = { s in
+        return "\(s.timeExpire)\n\(s.schedText)"
+    }
+
+
+    static let scheduleFormat:(RowStreetSweeping)->(String) = { s in
+        return "\(rowSchedFormat(s)) "  //\n \(rowSchedFormat(s.sideOppositeRow!))"
+    }
 }
 
 extension StreetSweepMgr {
     func fullRouteCoordinates(_ row: RowStreetSweeping) -> [CLLocationCoordinate2D] {
         var result: [CLLocationCoordinate2D] = []
-
         var selectedRows: [RowStreetSweeping] = []
 
-        // HACK: accessing the singleton from an instance
-        for rowS in StreetSweepMgr.shared.rows {
-            
+        for rowS in rows {
             // find contiguous coordinates
-            if rowS.cnn == row.cnn
-                // && rowS.corridor == row.corridor
-                //&& rowS.side == row.side
-            {                               // fuck your styleguide
-
-                if let l = selectedRows.last, l.cnn < rowS.cnn {
-                    selectedRows = selectedRows + [rowS]
-                }
-                else {
-                    selectedRows = [rowS] + selectedRows
-                }
+            if //rowS.cnn == row.cnn
+                rowS.corridor == row.corridor
+                && rowS.side == row.side
+            {
+                selectedRows += [rowS]
             }
         }
 
-        for row in selectedRows { result += row.line }
+        selectedRows = selectedRows.sorted(by: { $0.cnn < $1.cnn })
 
+        selectedRows.forEach({ result += $0.line })
+        
         return result
     }
 }
 
 extension RowStreetSweeping {
+
     func scheduleText() -> String {
-        // TODO: diff colors for opposite sides text
-        return "\(self.schedText) + \(self.timeRemain/86400.0) days remain"
+        return RowStreetSweeping.scheduleFormat(self)
     }
 
     func streetText() -> String { return name + "(\(self.side == .R ? "right side" : "left side"))" }
+
+    func dotProduct(_ c: CLLocationCoordinate2D) -> Double {
+        var min = Double.infinity
+        for i in 1..<line.count
+        {
+            let d = VectorDotProduct((line[i-1], line[i]), c)
+            if d < min
+            {
+                min = d
+            }
+        }
+        return min
+    }
+
+    func distanceToVertex(_ coord: CLLocationCoordinate2D) -> Double {
+        // return distance to nearest vertex
+        return self.line.map( { dist2($0.latitude, $0.longitude, coord.latitude, coord.longitude) }).min()!
+    }
 }

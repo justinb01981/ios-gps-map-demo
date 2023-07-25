@@ -20,72 +20,6 @@ class StreetSweepMgr: NSObject {
     var city: String
     var inputstream: InputStream!
 
-    let searchMethod: (RowStreetSweeping)->Bool = { row in
-        row.name.contains("07th Ave") && row.side == .R && row.cnn == 349000
-    }
-
-    let maxResultLen = 100.0
-
-    let dist2: (Double, Double, Double, Double) -> Double = {
-        la1, lo1, la2, lo2 in
-
-        return sqrt(
-            pow(la2-la1, 2) * pow(lo2-lo1, 2)
-        )
-    }
-
-    lazy var findLen: (RowStreetSweeping, CLLocationCoordinate2D) -> Double = {
-        row, coord in
-        let debugme = false
-
-
-        if row.name == "07th Ave"
-        {
-            print("findLen: \(row.name + row.corridor) coord=\(coord)  row: \(row.line[0]) - \(row.line[1])")
-        }
-
-        // iterate linestring
-        var min = Double.infinity
-
-        for idx in 1..<row.line.count
-        {
-            let a = row.line[idx]
-            let b = row.line[idx-1]
-            let c = coord
-
-            // row V
-            let lLa = (a.latitude - b.latitude)
-            let lLo = (a.longitude - b.longitude)
-
-            // coord U
-            let cLo =  (a.latitude - coord.latitude)
-            let cLa =  (a.longitude - coord.longitude)
-
-            let rise = -1 / (lLa / lLo) // perpendicujlar slope
-            let run = sqrt( pow(lLa, 2) + pow(lLo, 2)  )
-
-            var kLa = cLo * rise
-            var kLo =  kLa * (1/rise)
-
-            // TODO: use the dot product to sort
-            let dis = self.dist2(coord.latitude, coord.longitude, a.latitude + kLa , a.longitude + kLo)
-
-            //if dis > run { continue }
-
-            if dis < min {
-                min = dis
-            }
-        }
-
-        if self.searchMethod(row)
-        {
-            print("\tdist min: \(min) \(row.cnn)")
-        }
-
-
-        return min
-    }
-
     static var shared = StreetSweepMgr(city: Config.city)
 
     init(city: String) {
@@ -93,9 +27,8 @@ class StreetSweepMgr: NSObject {
 
         super.init()
 
-        loadTest()
-//        load()
-
+//        loadTest()
+        load()
     }
 
     private func loadTest()
@@ -105,10 +38,7 @@ class StreetSweepMgr: NSObject {
         let row3 = ["4730000", "1604605", "LINESTRING (-122.444320397518 37.733087687592, -122.444320121546 37.733811072758)", "Detroit St", "Mon 2nd & 4th", "Mon", "12", "14", "0", "1", "0", "1", "0", "L"]
         let row4 = ["13336000", "1599251", "LINESTRING (-122.444336617908 37.734557437918, -122.444336333905 37.734717369765, -122.444406257688 37.734813056491, -122.444694857171 37.735018825585, -122.445044465977 37.73524073449, -122.445321236327 37.735477044094)", "Vista Verde Ct", "Thu 2nd & 4th", "Thu", "12", "14", "0", "1", "0", "1", "0", "L"]
 
-        for r in [row1,
-                  row2
-                  , row3, row4
-        ] {
+        for r in [row1, row2, row3, row4] {
             rows += [RowStreetSweeping(r)!]
         }
     }
@@ -156,40 +86,24 @@ class StreetSweepMgr: NSObject {
 
     private func searchInternal(_ coord: CLLocationCoordinate2D, then doThis: @escaping (RowStreetSweeping?)->(Void)) {
 
-        var resultpend = result
+        var result: RowStreetSweeping!
 
         for row in rows {
-
-            if let result = resultpend {
-
-                let len = findLen(row, coord)
-
-                if len < findLen(result, coord) {
-                    resultpend = row
-                }
-
-                print("improving result: \(row.values) len \(len) ")
-            }
-            else {
-                resultpend = row
+            if result == nil || result.dotProduct(coord) > row.dotProduct(coord) {
+                result = row
+//                print("improving result: \(row.name) / \(row.dotProduct(coord))")
             }
         }
 
-        let resultTmp = resultpend
-
-        result = nil
         DispatchQueue.main.async {
-            doThis(resultTmp)
+            doThis(result)
         }
     }
 
     func findSchedule(_ coord: CLLocationCoordinate2D, then thenDo: @escaping (RowStreetSweeping?)->(Void)) {
-
-        result = rows.first!
-
-//        DispatchQueue(label: "\(self)").async {
+        DispatchQueue(label: "\(self)").async {
             self.searchInternal(coord, then: thenDo)
-//        }
+        }
     }
 }
 
