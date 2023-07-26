@@ -21,12 +21,17 @@ class ViewController: UIViewController {
     private let pad = 2.0
     private let altitude = 1000.0
 
+    private var remindTarget: Date!
+
     @IBOutlet private var controlsView: ControlsView!
 
     private var sweepingManager: StreetSweepMgr!
 
     lazy private var remindButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Reminder", withAction: {
         // TODO: set reminder
+        let df = DateFormatter()
+        df.dateFormat = "YYYYMMDDhhmmss"
+        print("\((df.string(from: self.remindTarget)))")
     })
 
     lazy private var recenterButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Re-center", withAction: {
@@ -148,6 +153,7 @@ extension ViewController: ViewModelDelegate {
                 return
             }
 
+            remindTarget = srow.timeExpire
             streetView.text = srow.streetText()
             scheduleView.text = srow.scheduleText() //"\(srow.schedText) (\(srow.timeRemain)"
 

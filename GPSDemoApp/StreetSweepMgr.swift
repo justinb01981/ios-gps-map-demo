@@ -92,6 +92,7 @@ class StreetSweepMgr: NSObject {
             if result == nil || result.dotProduct(coord) > row.dotProduct(coord) {
                 result = row
 //                print("improving result: \(row.name) / \(row.dotProduct(coord))")
+
             }
         }
 

@@ -195,8 +195,10 @@ class RowStreetSweeping: NSObject {
 
                 let vtxn = tokes[idx]
                 let rise = vtxn.latitude / vtxn.longitude
-                let la = 0.0 //vtxn.latitude * (-1 / rise) * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
-                let lo = 0.0 //vtxn.longitude / (-1 / rise) * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
+                let la = rise * (side == .R ? 0.0000000001 : -0.0000000001)
+                //* (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
+                let lo = la//1/rise * (side == .L ? 0.0000000001 : -0.0000000001)
+                // * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
                 let vtx = [CLLocationCoordinate2D(latitude: vtxn.latitude   + la,
                                                   longitude: vtxn.longitude + lo)  ]
 
