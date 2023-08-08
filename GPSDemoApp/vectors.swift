@@ -11,7 +11,8 @@ import Foundation
 
 
 // TODO: better typing e.g.:
-typealias Vertex = CLLocationCoordinate2D
+typealias Coordinate = CLLocationCoordinate2D
+typealias Vertex = Coordinate
 typealias Edge = (Vertex, Vertex)
 
 extension Vertex {
@@ -57,5 +58,3 @@ let VectorDotProduct: (Edge, Vertex) -> Double = {
     // TODO: use the dot product to sort
     return dist2(coord.latitude, coord.longitude, a.latitude + kLa, a.longitude + kLo)
 }
-
-

@@ -26,7 +26,7 @@ class DotAnnotationView: MKAnnotationView {
     }
 
     class func registerWithMap(_ mapUI: MKMapView) {
-        mapUI.register(DotAnnotationView.self, forAnnotationViewWithReuseIdentifier: gpsAnnotationViewName)
+        mapUI.register(self.self, forAnnotationViewWithReuseIdentifier: gpsAnnotationViewName)
     }
 }
 
@@ -44,7 +44,7 @@ class CursorAnnotationView: DotAnnotationView {
     }
 
     override class func registerWithMap(_ mapUI: MKMapView) {
-        mapUI.register(DotAnnotationView.self, forAnnotationViewWithReuseIdentifier: CursorAnnotationViewName)
+        mapUI.register(self.self, forAnnotationViewWithReuseIdentifier: CursorAnnotationViewName)
     }
 
 }

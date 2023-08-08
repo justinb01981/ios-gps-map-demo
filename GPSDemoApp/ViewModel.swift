@@ -11,10 +11,10 @@ import UIKit
 import CoreLocation
 
 protocol ViewModelDelegate: NSObject {
-    func updatedMyLocation(_ c: CLLocationCoordinate2D)
-    func updateSchedule(_ c: CLLocationCoordinate2D)
-    func targetLocation() -> CLLocationCoordinate2D
-    func replaceTarget(_ c: CLLocationCoordinate2D)
+    func updatedMyLocation(_ c: Coordinate)
+    func updateSchedule(_ c: Coordinate)
+    func targetLocation() -> Coordinate
+    func replaceTarget(_ c: Coordinate)
 }
 
 class ViewModel: NSObject {
@@ -22,7 +22,7 @@ class ViewModel: NSObject {
 
     static let kLocationLogKey = "loggedLocations"
 
-    var routes: [String: [CLLocationCoordinate2D]] = [:]
+    var routes: [String: [Coordinate]] = [:]
 
     var allLocations: [LocationLogEntry] {
         get {
@@ -44,18 +44,30 @@ class ViewModel: NSObject {
         }
     }
 
+    var matchedIntercept: Coordinate! {
+        get {
+            StreetSweepMgr.shared.matchedIntercept
+        }
+    }
+
+    var matchedEdge: Edge! {
+        get {
+            StreetSweepMgr.shared.matchedEdge
+        }
+    }
+
     private func tailRow() -> LocationLogEntry? {
         return LocationLog.shared.all.last
     }
 
-    func sweepLocation() -> CLLocationCoordinate2D? {
+    func sweepLocation() -> Coordinate? {
         if let l = tailRow() {
-            return CLLocationCoordinate2D(latitude: l.lat, longitude: l.long)
+            return Coordinate(latitude: l.lat, longitude: l.long)
         }
         return nil
     }
 
-    func sweepScheduleSearch(_ loc: CLLocationCoordinate2D, then doThisShit: @escaping (RowStreetSweeping?)->(Void)) {
+    func sweepScheduleSearch(_ loc: Coordinate, then doThisShit: @escaping (RowStreetSweeping?)->(Void)) {
         let loc = delegate.targetLocation()
 
         StreetSweepMgr.shared.findSchedule(loc, then: {
@@ -68,7 +80,7 @@ class ViewModel: NSObject {
 
         if let delegate = delegate {
             let curs = delegate.targetLocation()
-            delegate.updateSchedule(CLLocationCoordinate2D(latitude: curs.latitude, longitude: curs.longitude))
+            delegate.updateSchedule(Coordinate(latitude: curs.latitude, longitude: curs.longitude))
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

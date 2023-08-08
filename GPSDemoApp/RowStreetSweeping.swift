@@ -28,6 +28,9 @@ let selectBindings: [Expression<String>] = [Expression<String>("CNN"),
 
                                             ]
 
+fileprivate let ICPTA: Int = -1
+fileprivate let ICPTB: Int = 0
+
 
 //CNN,Corridor,Limits,CNNRightLeft,BlockSide,FullName,WeekDay,FromHour,ToHour,Week1,Week2,Week3,Week4,Week5,Holidays,BlockSweepID,Line
 /*
@@ -110,7 +113,7 @@ enum RowFields: Int {
 
 class RowStreetSweeping: NSObject {
 
-    var line: [CLLocationCoordinate2D]
+    var line: [Coordinate]
     var lineLength: Double
     var name: String
     var schedText: String
@@ -123,6 +126,10 @@ class RowStreetSweeping: NSObject {
     var corridor: String          // 9th ave, etc
     var side: StreetSide
     var sideOppositeRow: RowStreetSweeping?
+
+    var result: Coordinate! // last-calculated intercept
+    var dResult: Double = .infinity
+    var eResult: Edge!
 
     var values: [String]
 
@@ -150,7 +157,7 @@ class RowStreetSweeping: NSObject {
                 let s = $0.components(separatedBy: " ")
                 assert(s.count == 2)
 
-                return CLLocationCoordinate2D(    latitude: Double(s[1])!, longitude: Double(s[0])! )
+                return Coordinate(    latitude: Double(s[1])!, longitude: Double(s[0])! )
             }
 
             // happens below
@@ -197,16 +204,17 @@ class RowStreetSweeping: NSObject {
                 let rise = vtxn.latitude / vtxn.longitude
                 let la = rise * (side == .R ? 0.0000000001 : -0.0000000001)
                 //* (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
-                let lo = la//1/rise * (side == .L ? 0.0000000001 : -0.0000000001)
+                let lo = la  
                 // * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
-                let vtx = [CLLocationCoordinate2D(latitude: vtxn.latitude   + la,
+                let vtx = [Coordinate(latitude: vtxn.latitude   + la,
                                                   longitude: vtxn.longitude + lo)  ]
 
                 // HACK: tweak coordinates lat/long slightly so the rows for r/l are distinct and can be highlighted on the map
                 self.line += vtx
 
                 if idx > 0 {
-                    lineLength += dist2(line[idx].latitude, line[idx].longitude, line[idx-1].latitude, line[idx-1].longitude)// calculating full length
+                    lineLength += dist2(line[idx+ICPTA].latitude, line[idx+ICPTA].longitude, line[idx+ICPTB].latitude, line[idx+ICPTB].longitude)
+                    // calculating full length
                 }
             }
         }
@@ -226,12 +234,15 @@ class RowStreetSweeping: NSObject {
     }
 }
 
-extension StreetSweepMgr {
-    func fullRouteCoordinates(_ row: RowStreetSweeping) -> [CLLocationCoordinate2D] {
-        var result: [CLLocationCoordinate2D] = []
+extension RowStreetSweeping {
+    func fullRouteCoordinates() -> [Coordinate] {
+        let row = self
+        var result: [Coordinate] = []
         var selectedRows: [RowStreetSweeping] = []
 
-        for rowS in rows {
+        let hackGlobalSingleton = StreetSweepMgr.shared
+
+        for rowS in hackGlobalSingleton.rows {
             // find contiguous coordinates
             if //rowS.cnn == row.cnn
                 rowS.corridor == row.corridor
@@ -257,21 +268,79 @@ extension RowStreetSweeping {
 
     func streetText() -> String { return name + "(\(self.side == .R ? "right side" : "left side"))" }
 
-    func dotProduct(_ c: CLLocationCoordinate2D) -> Double {
-        var min = Double.infinity
+    func dotProduct(_ c: Coordinate) -> Double {
+        var max = 0.0
         for i in 1..<line.count
         {
-            let d = VectorDotProduct((line[i-1], line[i]), c)
-            if d < min
+            let d = VectorDotProduct((line[i+ICPTA], line[i+ICPTB]), c)
+            if d > max
             {
-                min = d
+                max = d
             }
         }
-        return min
+        return max
     }
 
-    func distanceToVertex(_ coord: CLLocationCoordinate2D) -> Double {
+    func distanceToVertex(_ coord: Coordinate) -> Double {
         // return distance to nearest vertex
         return self.line.map( { dist2($0.latitude, $0.longitude, coord.latitude, coord.longitude) }).min()!
     }
+
+    // TODO: minimal intercept for this row edges.. split out the math maybe
+    func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate {
+        // row V
+//        let c = coord
+
+
+        // find intersection where y = Mx + b
+
+        // if rise is slope lat/lng
+        let Urise = (b.latitude - a.latitude) / (b.longitude - a.longitude) // dont change this without reconsidering below
+        // U = lat
+        // V = lng
+        //
+        let AClat = (c.latitude-a.latitude)
+        let CBlat = (c.latitude-b.latitude)
+        let AClng = (c.longitude-a.longitude)
+        let CBlng = (c.longitude-b.longitude)
+        let ABla = (a.latitude-b.latitude)
+        let ABlo = (a.longitude-b.longitude)
+
+        // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
+        var uM = (AClat/Urise - CBlng*Urise) / ABlo // intercept ac
+        var vM1 = CBlat*Urise - AClng/Urise         // intercept bc
+        let v = ((vM1*uM) * (ABlo-ABla)) * AClng
+        let u = Urise*v
+
+        return Coordinate(c.latitude-u, c.longitude-v)
+    }
+
+    func interceptIfValid(_ coord: Coordinate) -> (Edge, Coordinate)? {
+        result = nil
+        dResult = .infinity
+        eResult = nil
+
+        for i in 1..<line.count {
+
+            let icpt = intercept(coord, line[i+ICPTA], line[i+ICPTB])
+
+            let dIcpt = dist2(icpt.latitude, icpt.longitude, coord.latitude, coord.longitude)
+
+            let edge = (coord, icpt)
+
+            if dIcpt < dResult {
+                dResult = dIcpt
+                eResult = edge
+                result = icpt
+            }
+        }
+
+        if let result = result, let eResult = eResult {
+            return (eResult, result)
+        }
+        else {
+            return nil
+        }
+    }
+
 }

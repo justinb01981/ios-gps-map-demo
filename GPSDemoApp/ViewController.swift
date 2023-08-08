@@ -15,7 +15,7 @@ class ViewController: UIViewController {
     private var mapUI: MKMapView!
     private var streetView: BaseControlWithLabel = TextViewWithLabel(label: "Street")
     private var scheduleView: BaseControlWithLabel = TextViewWithLabel(label: "Schedule")
-    private var pathOverlay: MKOverlay!
+    private var pathOverlay, debugOverlay: MKOverlay!
     private var pathOverlaySide: StreetSide!
 
     private let pad = 2.0
@@ -104,15 +104,15 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: ViewModelDelegate {
-    func targetLocation() -> CLLocationCoordinate2D {
+    func targetLocation() -> Coordinate {
         mapUI.camera.centerCoordinate
     }
 
-    func replaceTarget(_ c: CLLocationCoordinate2D) {
+    func replaceTarget(_ c: Coordinate) {
         mapUI.camera.centerCoordinate = c
     }
 
-    func updatedMyLocation(_ tailCoord: CLLocationCoordinate2D) {
+    func updatedMyLocation(_ tailCoord: Coordinate) {
 
         print("updatedMyLocation: \(tailCoord)")
 
@@ -138,15 +138,21 @@ extension ViewController: ViewModelDelegate {
         }
     }
 
-    func updateSchedule(_ tailCoord: CLLocationCoordinate2D) {
+    func updateSchedule(_ tailCoord: Coordinate) {
 
         viewModel.sweepScheduleSearch(tailCoord) {
 
             [unowned self] foundRow in
-            guard let srow = foundRow else { return }
 
             if let removeOver = pathOverlay {
+                streetView.text = "???"
+                scheduleView.text = "???"
                 mapUI.removeOverlay(removeOver)
+            }
+
+            guard let srow = foundRow else {
+                return
+
             }
 
             if srow.line.count == 0 {
@@ -157,7 +163,9 @@ extension ViewController: ViewModelDelegate {
             streetView.text = srow.streetText()
             scheduleView.text = srow.scheduleText() //"\(srow.schedText) (\(srow.timeRemain)"
 
-            let polyline = StreetSweepMgr.shared.fullRouteCoordinates(srow)
+
+//            if let polyline = StreetSweepMgr.shared.fullRouteCoordinates(srow) as [Coordinate]?
+            let polyline = srow.fullRouteCoordinates()
 
             //overlayHackStrokeBothsides = srow.sideOppositeRow != nil // dumb coloring hack
 
@@ -165,6 +173,22 @@ extension ViewController: ViewModelDelegate {
             pathOverlaySide = srow.side
 
             mapUI.addOverlay(pathOverlay)
+
+            if let prevOv = debugOverlay {
+                mapUI.removeOverlay(prevOv)
+                debugOverlay = nil
+            }
+
+//            if let intCoord = viewModel.matchedIntercept {
+//                debugOverlay = MKPolyline(coordinates: [intCoord, tailCoord], count: 2)
+//                mapUI.addOverlay(debugOverlay)
+//            }
+
+            if let intEdge = viewModel.matchedEdge {
+                let c = [intEdge.0, intEdge.1]
+                debugOverlay = MKPolyline(coordinates:c , count: c.count)
+                mapUI.addOverlay(debugOverlay)
+            }
         }
 
         if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: CursorAnnotationViewName)
@@ -202,6 +226,11 @@ extension ViewController: MKMapViewDelegate {
         let overRenderer = MKPolylineRenderer(overlay: overlay)
 
         overRenderer.strokeColor = pathOverlaySide == .R ? UIColor.blue : UIColor.green
+
+        let ov = overlay
+        if debugOverlay.isEqual(ov) {
+            overRenderer.strokeColor = UIColor.cyan
+        }
 
         // preserve prior overlay
         if overlayHackStrokeBothsides {

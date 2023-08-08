@@ -16,9 +16,13 @@ fileprivate let city = "sf"
 class StreetSweepMgr: NSObject {
 
     var rows: [RowStreetSweeping] = []
-    var indexedByCNN: [Int: [RowStreetSweeping]] = [:]
+    var indexedByCenterline: [String: [RowStreetSweeping]] = [:]
     var city: String
     var inputstream: InputStream!
+
+    weak var result: RowStreetSweeping!
+    var matchedIntercept: Coordinate!
+    var matchedEdge: Edge!
 
     static var shared = StreetSweepMgr(city: Config.city)
 
@@ -27,20 +31,36 @@ class StreetSweepMgr: NSObject {
 
         super.init()
 
-//        loadTest()
-        load()
+        loadTest()
+//        load()
     }
 
     private func loadTest()
     {
         let row1 = ["1191000", "1627862", "LINESTRING (-122.418747573844 37.75543693624, -122.419857942892 37.755365729245)", "22nd St", "Friday", "Fri", "6", "8", "1", "1", "1", "1", "1", "L"]
         let row2 = ["2665000", "1643917", "LINESTRING (-122.479106356666 37.776546338205, -122.480175347783 37.776497608827)", "Balboa St", "Fri 2nd & 4th", "Fri", "9", "11", "0", "1", "0", "1", "0", "L"]
-        let row3 = ["4730000", "1604605", "LINESTRING (-122.444320397518 37.733087687592, -122.444320121546 37.733811072758)", "Detroit St", "Mon 2nd & 4th", "Mon", "12", "14", "0", "1", "0", "1", "0", "L"]
-        let row4 = ["13336000", "1599251", "LINESTRING (-122.444336617908 37.734557437918, -122.444336333905 37.734717369765, -122.444406257688 37.734813056491, -122.444694857171 37.735018825585, -122.445044465977 37.73524073449, -122.445321236327 37.735477044094)", "Vista Verde Ct", "Thu 2nd & 4th", "Thu", "12", "14", "0", "1", "0", "1", "0", "L"]
+        let row3 = ["4730000", "1604605", "LINESTRING (-122.379106356666 37.786546338205, -122.379106356666 37.716546338205)", "Detroit St", "Mon 2nd & 4th", "Mon", "12", "14", "0", "1", "0", "1", "0", "L"]
+//        let row4 = ["13336000", "1599251", "LINESTRING (-122.444336617908 37.734557437918, -122.444336333905 37.734717369765, -122.444406257688 37.734813056491, -122.444694857171 37.735018825585, -122.445044465977 37.73524073449, -122.445321236327 37.735477044094)", "Vista Verde Ct", "Thu 2nd & 4th", "Thu", "12", "14", "0", "1", "0", "1", "0", "L"]
 
-        for r in [row1, row2, row3, row4] {
+        for r in [row1
+                  ,row2
+                  /*,row3*/] {
             rows += [RowStreetSweeping(r)!]
         }
+
+        // math sanity
+        var r1 = RowStreetSweeping(
+            ["1191000", "1627862", "LINESTRING (-10 10, 10 -10)", "22nd St", "Friday", "Fri", "6", "8", "1", "1", "1", "1", "1", "L"]
+        )!
+
+        let rc = Coordinate(-1, -1)
+        let rc1 = Coordinate(-1.5, -1)
+        let rc2 = Coordinate(-1, -1.5)
+//        assert(r1.intercept(rc, r1....
+//        print("\(r1.intercept(rc, Coordinate(-1, 1), Coordinate(1, -1)))")
+//        print("\(r1.intercept(rc1, Coordinate(-1, 1), Coordinate(1, -1)))")
+        print("\(r1.intercept(rc2, Coordinate(-1, 1), Coordinate(1, -1)))")
+
     }
 
     private func load()
@@ -61,10 +81,12 @@ class StreetSweepMgr: NSObject {
                 } // for b
 
                 if let nrow = RowStreetSweeping(values) {
-                    rows += [nrow]
-                    indexedByCNN[nrow.cnn, default: []] += [nrow]
-                }
 
+                    indexedByCenterline[nrow.name, default: []] += [nrow]
+                    indexedByCenterline[nrow.name] = indexedByCenterline[nrow.name]?.sorted(by: { $0.cnn < $1.cnn })
+                    rows += [nrow]
+                    // will be added to rows after indexing
+                }
             }// while
         }
         catch let error {
@@ -77,27 +99,37 @@ class StreetSweepMgr: NSObject {
             if sibling.sideOppositeRow != nil { continue }
 
             // link
-            sibling.sideOppositeRow = indexedByCNN[sibling.cnn]?.first(where: { $0 != sibling })
+            sibling.sideOppositeRow = indexedByCenterline[sibling.name]?.first(where: { $0 != sibling })
             sibling.sideOppositeRow?.sideOppositeRow = sibling
         }
     }
 
-    private weak var result: RowStreetSweeping?
-
     private func searchInternal(_ coord: CLLocationCoordinate2D, then doThis: @escaping (RowStreetSweeping?)->(Void)) {
 
-        var result: RowStreetSweeping!
+        result = nil
+        var dResult = Double.infinity
 
         for row in rows {
-            if result == nil || result.dotProduct(coord) > row.dotProduct(coord) {
-                result = row
-//                print("improving result: \(row.name) / \(row.dotProduct(coord))")
 
+            if let rpair = row.interceptIfValid(coord) {
+                
+                let int = rpair.1
+                let dInt = dist2(int.latitude, int.longitude, coord.latitude, coord.longitude)
+
+                if dInt < dResult {
+                    matchedEdge = rpair.0
+                    matchedIntercept = int
+                    result = row
+                    dResult = dInt
+
+                    //print("improving result: \(result.name) / \(dResult)")
+                }
             }
         }
 
         DispatchQueue.main.async {
-            doThis(result)
+            print("results: \(self.rows.sorted(by: { $0.dResult < $1.dResult }).map { $0.name })")
+            doThis(self.result)
         }
     }
 
