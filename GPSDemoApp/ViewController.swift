@@ -179,15 +179,17 @@ extension ViewController: ViewModelDelegate {
                 debugOverlay = nil
             }
 
-//            if let intCoord = viewModel.matchedIntercept {
-//                debugOverlay = MKPolyline(coordinates: [intCoord, tailCoord], count: 2)
-//                mapUI.addOverlay(debugOverlay)
-//            }
-
-            if let intEdge = viewModel.matchedEdge {
-                let c = [intEdge.0, intEdge.1]
-                debugOverlay = MKPolyline(coordinates:c , count: c.count)
+            if let intCoord = viewModel.matchedIntercept {
+                debugOverlay = MKPolyline(coordinates: [intCoord, tailCoord], count: 2)
                 mapUI.addOverlay(debugOverlay)
+            }
+            else
+            {
+                if let intEdge = viewModel.matchedEdge {
+                    let c = [intEdge.0, intEdge.1]
+                    debugOverlay = MKPolyline(coordinates:c , count: c.count)
+                    mapUI.addOverlay(debugOverlay)
+                }
             }
         }
 
@@ -220,16 +222,15 @@ extension ViewController: MKMapViewDelegate {
 
         guard let overlay = overlay as? MKPolyline
         else {
-            fatalError("only mkpolyline handled")
+            fatalError()
         }
 
         let overRenderer = MKPolylineRenderer(overlay: overlay)
-
-        overRenderer.strokeColor = pathOverlaySide == .R ? UIColor.blue : UIColor.green
-
-        let ov = overlay
-        if debugOverlay.isEqual(ov) {
+        if overlay.isEqual(debugOverlay) {
             overRenderer.strokeColor = UIColor.cyan
+        }
+        else {
+            overRenderer.strokeColor = pathOverlaySide == .R ? UIColor.blue : UIColor.green
         }
 
         // preserve prior overlay

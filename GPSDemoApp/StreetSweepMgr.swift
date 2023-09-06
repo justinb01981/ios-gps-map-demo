@@ -40,31 +40,39 @@ class StreetSweepMgr: NSObject {
         let row1 = ["1191000", "1627862", "LINESTRING (-122.418747573844 37.75543693624, -122.419857942892 37.755365729245)", "22nd St", "Friday", "Fri", "6", "8", "1", "1", "1", "1", "1", "L"]
         let row2 = ["2665000", "1643917", "LINESTRING (-122.479106356666 37.776546338205, -122.480175347783 37.776497608827)", "Balboa St", "Fri 2nd & 4th", "Fri", "9", "11", "0", "1", "0", "1", "0", "L"]
         let row3 = ["4730000", "1604605", "LINESTRING (-122.379106356666 37.786546338205, -122.379106356666 37.716546338205)", "Detroit St", "Mon 2nd & 4th", "Mon", "12", "14", "0", "1", "0", "1", "0", "L"]
-//        let row4 = ["13336000", "1599251", "LINESTRING (-122.444336617908 37.734557437918, -122.444336333905 37.734717369765, -122.444406257688 37.734813056491, -122.444694857171 37.735018825585, -122.445044465977 37.73524073449, -122.445321236327 37.735477044094)", "Vista Verde Ct", "Thu 2nd & 4th", "Thu", "12", "14", "0", "1", "0", "1", "0", "L"]
+        let row4 = ["13336000", "1599251", "LINESTRING (-122.444336617908 37.734557437918, -122.444336333905 37.734717369765, -122.444406257688 37.734813056491, -122.444694857171 37.735018825585, -122.445044465977 37.73524073449, -122.445321236327 37.735477044094)", "Vista Verde Ct", "Thu 2nd & 4th", "Thu", "12", "14", "0", "1", "0", "1", "0", "L"]
 
-        for r in [row1
-                  ,row2
-                  /*,row3*/] {
+        for r in [
+           row1
+          ,row2
+//          ,row3
+//          ,row4
+        ] {
             rows += [RowStreetSweeping(r)!]
         }
 
-        // math sanity
-        var r1 = RowStreetSweeping(
-            ["1191000", "1627862", "LINESTRING (-10 10, 10 -10)", "22nd St", "Friday", "Fri", "6", "8", "1", "1", "1", "1", "1", "L"]
-        )!
+        if true
+        {
+            // math sanity
+            var r1 = RowStreetSweeping(
+                ["1191000", "1627862", "LINESTRING (-10 10, 10 -10)", "22nd St", "Friday", "Fri", "6", "8", "1", "1", "1", "1", "1", "L"]
+            )!
 
-        let rc = Coordinate(-1, -1)
-        let rc1 = Coordinate(-1.5, -1)
-        let rc2 = Coordinate(-1, -1.5)
-//        assert(r1.intercept(rc, r1....
-//        print("\(r1.intercept(rc, Coordinate(-1, 1), Coordinate(1, -1)))")
-//        print("\(r1.intercept(rc1, Coordinate(-1, 1), Coordinate(1, -1)))")
-        print("\(r1.intercept(rc2, Coordinate(-1, 1), Coordinate(1, -1)))")
-
+            let rc = Coordinate(-1, -1)
+            let rc1 = Coordinate(-1.5, -1)
+            let rc2 = Coordinate(-1, -3)
+            //        assert(r1.intercept(rc, r1....
+            //        print("\(r1.intercept(rc, Coordinate(-1, 1), Coordinate(1, -1)))")
+            //        print("\(r1.intercept(rc1, Coordinate(-1, 1), Coordinate(1, -1)))")
+            print("\(r1.intercept(rc2, Coordinate(-3, 1), Coordinate(3, -2)))")
+        }
     }
 
     private func load()
     {
+        // TODO: add query for nyc:
+        // http://www.opencurb.nyc/search.php?coord=40.7630131962117,-73.9860065204115&v_type=PASSENGER&a_type=PARK&meter=0&radius=50&StartDate=2015-09-30&StartTime=06:25&EndDate=2015-09-30&EndTime=07:25&action_allowed=1
+
         let path =  Bundle.main.path(forResource: "sweep_schedule_\(city)", ofType: "db")!
 
         // Wrap everything in a do...catch to handle errors
@@ -109,14 +117,22 @@ class StreetSweepMgr: NSObject {
         result = nil
         var dResult = Double.infinity
 
+        if rows.count > 8 {
+            pickyRowSearch = true // debug
+        }
+
         for row in rows {
 
-            if let rpair = row.interceptIfValid(coord) {
-                
+            if let rpair = row.asyncRowInterceptSearch(near: coord) {
+
+                let xcoord = rpair.0
                 let int = rpair.1
+                let dist = rpair.2
+
                 let dInt = dist2(int.latitude, int.longitude, coord.latitude, coord.longitude)
 
-                if dInt < dResult {
+                if dInt < dResult
+                {
                     matchedEdge = rpair.0
                     matchedIntercept = int
                     result = row
@@ -128,7 +144,7 @@ class StreetSweepMgr: NSObject {
         }
 
         DispatchQueue.main.async {
-            print("results: \(self.rows.sorted(by: { $0.dResult < $1.dResult }).map { $0.name })")
+            //print("results: \(self.rows.sorted(by: { $0.dResult < $1.dResult }).map { $0.name })")
             doThis(self.result)
         }
     }

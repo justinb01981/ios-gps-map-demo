@@ -31,6 +31,8 @@ let selectBindings: [Expression<String>] = [Expression<String>("CNN"),
 fileprivate let ICPTA: Int = -1
 fileprivate let ICPTB: Int = 0
 
+var pickyRowSearch = false  // test data
+
 
 //CNN,Corridor,Limits,CNNRightLeft,BlockSide,FullName,WeekDay,FromHour,ToHour,Week1,Week2,Week3,Week4,Week5,Holidays,BlockSweepID,Line
 /*
@@ -287,15 +289,17 @@ extension RowStreetSweeping {
     }
 
     // TODO: minimal intercept for this row edges.. split out the math maybe
+    // TODO: unit vectors
+
     func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate {
         // row V
 //        let c = coord
 
-
         // find intersection where y = Mx + b
 
         // if rise is slope lat/lng
-        let Urise = (b.latitude - a.latitude) / (b.longitude - a.longitude) // dont change this without reconsidering below
+        let Urise =  (b.latitude - a.latitude) / (b.longitude - a.longitude) // dont change this without reconsidering below
+        //let Urise =  (b.longitude - a.longitude) / (a.latitude - b.latitude) // dont change this without reconsidering below
         // U = lat
         // V = lng
         //
@@ -303,30 +307,46 @@ extension RowStreetSweeping {
         let CBlat = (c.latitude-b.latitude)
         let AClng = (c.longitude-a.longitude)
         let CBlng = (c.longitude-b.longitude)
-        let ABla = (a.latitude-b.latitude)
-        let ABlo = (a.longitude-b.longitude)
+        let ABlat = (a.latitude-b.latitude)
+        let ABlng = (a.longitude-b.longitude)
 
         // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
-        var uM = (AClat/Urise - CBlng*Urise) / ABlo // intercept ac
-        var vM1 = CBlat*Urise - AClng/Urise         // intercept bc
-        let v = ((vM1*uM) * (ABlo-ABla)) * AClng
-        let u = Urise*v
+        let u = ((AClat/Urise)*CBlng)
+        let v = ((AClng*Urise)*CBlat)
 
-        return Coordinate(c.latitude-u, c.longitude-v)
+        // sanity check this
+
+        let Ilat = u
+        let Ilng = v
+
+        return Coordinate(c.latitude-Ilat, c.longitude-Ilng)
     }
 
-    func interceptIfValid(_ coord: Coordinate) -> (Edge, Coordinate)? {
+    func asyncRowInterceptSearch(near coord: Coordinate) -> (Edge, Coordinate, Double)? {
         result = nil
         dResult = .infinity
         eResult = nil
 
         for i in 1..<line.count {
 
-            let icpt = intercept(coord, line[i+ICPTA], line[i+ICPTB])
+            let a = line[i+ICPTA]
+            let b = line[i+ICPTB]
+
+            let laC = (coord.latitude-a.latitude)/b.latitude
+            let loC = (coord.longitude-a.longitude)/b.longitude
+
+            // (very tolerant) bounds check on this seg
+            if pickyRowSearch {
+                if laC < -0.1 || laC > 1.1 || loC < -1.1 || loC > 1.1 {
+                    continue
+                }
+            }
+
+            let icpt = intercept(coord, a, b)
 
             let dIcpt = dist2(icpt.latitude, icpt.longitude, coord.latitude, coord.longitude)
 
-            let edge = (coord, icpt)
+            let edge = (icpt, line[i+ICPTA])
 
             if dIcpt < dResult {
                 dResult = dIcpt
@@ -336,7 +356,7 @@ extension RowStreetSweeping {
         }
 
         if let result = result, let eResult = eResult {
-            return (eResult, result)
+            return (eResult, result, dResult)
         }
         else {
             return nil
