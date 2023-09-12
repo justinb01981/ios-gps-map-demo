@@ -56,6 +56,8 @@ class ViewModel: NSObject {
         }
     }
 
+    var foundRow: RowStreetSweeping!
+
     private func tailRow() -> LocationLogEntry? {
         return LocationLog.shared.all.last
     }
@@ -70,9 +72,12 @@ class ViewModel: NSObject {
     func sweepScheduleSearch(_ loc: Coordinate, then doThisShit: @escaping (RowStreetSweeping?)->(Void)) {
         let loc = delegate.targetLocation()
 
+        foundRow = nil
+
         StreetSweepMgr.shared.findSchedule(loc, then: {
-            schedOpt in
-            doThisShit(schedOpt)
+            row in
+            self.foundRow = row
+            doThisShit(row)
         })
     }
 
@@ -83,7 +88,7 @@ class ViewModel: NSObject {
             delegate.updateSchedule(Coordinate(latitude: curs.latitude, longitude: curs.longitude))
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             [weak self] in
             self?.refreshFromCursor()
         }
@@ -92,7 +97,8 @@ class ViewModel: NSObject {
     override init() {
         super.init()
 
-        MyLocationManager.shared.startObserving { (location) in
+        MyLocationManager.shared.startObserving {
+            (location) in
             self.delegate.updatedMyLocation(location.coordinate)
         }
 

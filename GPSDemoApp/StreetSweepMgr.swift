@@ -64,7 +64,7 @@ class StreetSweepMgr: NSObject {
             //        assert(r1.intercept(rc, r1....
             //        print("\(r1.intercept(rc, Coordinate(-1, 1), Coordinate(1, -1)))")
             //        print("\(r1.intercept(rc1, Coordinate(-1, 1), Coordinate(1, -1)))")
-            print("\(r1.intercept(rc2, Coordinate(-3, 1), Coordinate(3, -2)))")
+            print("\(intercept(rc2, Coordinate(-3, 1), Coordinate(3, -2)))")
         }
     }
 
@@ -113,8 +113,9 @@ class StreetSweepMgr: NSObject {
     }
 
     private func searchInternal(_ coord: CLLocationCoordinate2D, then doThis: @escaping (RowStreetSweeping?)->(Void)) {
+        
+//        self.result = nil
 
-        result = nil
         var dResult = Double.infinity
 
         if rows.count > 8 {
@@ -123,7 +124,7 @@ class StreetSweepMgr: NSObject {
 
         for row in rows {
 
-            if let rpair = row.asyncRowInterceptSearch(near: coord) {
+            if let rpair = row.interceptSearch(near: coord) {
 
                 let xcoord = rpair.0
                 let int = rpair.1
@@ -150,9 +151,9 @@ class StreetSweepMgr: NSObject {
     }
 
     func findSchedule(_ coord: CLLocationCoordinate2D, then thenDo: @escaping (RowStreetSweeping?)->(Void)) {
-        DispatchQueue(label: "\(self)").async {
+//        DispatchQueue(label: "\(self)").async {
             self.searchInternal(coord, then: thenDo)
-        }
+//        }
     }
 }
 

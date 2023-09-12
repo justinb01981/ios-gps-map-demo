@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import EventKit
 
 class ViewController: UIViewController {
     
@@ -21,17 +22,44 @@ class ViewController: UIViewController {
     private let pad = 2.0
     private let altitude = 1000.0
 
-    private var remindTarget: Date!
-
     @IBOutlet private var controlsView: ControlsView!
 
     private var sweepingManager: StreetSweepMgr!
 
     lazy private var remindButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Reminder", withAction: {
         // TODO: set reminder
-        let df = DateFormatter()
-        df.dateFormat = "YYYYMMDDhhmmss"
-        print("\((df.string(from: self.remindTarget)))")
+
+        /*
+         see rfc 2445
+         */
+
+        // use viewModel remindtarget
+        if let fr = self.viewModel.foundRow {
+
+            gCalendarMgr.createReminderForRow(fr) {
+                // onCreate closure
+                (evOpt) in
+                let a: UIAlertController
+                let adjustDate = DateFormatter()
+                adjustDate.dateFormat = "MM/dd"
+
+                if let ev = evOpt {
+                    let str = adjustDate.string(from: ev.startDate!)
+                    a = UIAlertController(title: "success", message: "event created on \(str)", preferredStyle: .alert)
+                }
+                else {
+                    a = UIAlertController(title: "success", message: "event creation failed\n(probably calendar permission settings)", preferredStyle: .alert)
+                }
+
+                let act = UIAlertAction(title: "OK", style: .default) { alerT in
+                    // dismiss
+                    a.dismiss(animated: true)
+                }
+                a.addAction(act)
+
+                self.present(a, animated: true)
+            }
+        }
     })
 
     lazy private var recenterButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Re-center", withAction: {
@@ -142,29 +170,22 @@ extension ViewController: ViewModelDelegate {
 
         viewModel.sweepScheduleSearch(tailCoord) {
 
-            [unowned self] foundRow in
+            [unowned self] srow in
 
+            guard let srow = srow, srow.line.count > 0 else {
+                fatalError("sweep schedule search no row or empty-line row found")
+            }
+
+            // remove previous drawing
             if let removeOver = pathOverlay {
                 streetView.text = "???"
                 scheduleView.text = "???"
                 mapUI.removeOverlay(removeOver)
             }
 
-            guard let srow = foundRow else {
-                return
-
-            }
-
-            if srow.line.count == 0 {
-                return
-            }
-
-            remindTarget = srow.timeExpire
             streetView.text = srow.streetText()
             scheduleView.text = srow.scheduleText() //"\(srow.schedText) (\(srow.timeRemain)"
 
-
-//            if let polyline = StreetSweepMgr.shared.fullRouteCoordinates(srow) as [Coordinate]?
             let polyline = srow.fullRouteCoordinates()
 
             //overlayHackStrokeBothsides = srow.sideOppositeRow != nil // dumb coloring hack

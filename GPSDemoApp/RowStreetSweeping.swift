@@ -30,6 +30,12 @@ let selectBindings: [Expression<String>] = [Expression<String>("CNN"),
 
 fileprivate let ICPTA: Int = -1
 fileprivate let ICPTB: Int = 0
+fileprivate let calT = [
+    "1st",
+    "2nd",
+    "3rd",
+    "4th"
+]
 
 var pickyRowSearch = false  // test data
 
@@ -118,9 +124,28 @@ class RowStreetSweeping: NSObject {
     var line: [Coordinate]
     var lineLength: Double
     var name: String
+
     var schedText: String
-    var timeExpire: Date
+    var schedHourFrom: Int
+    var schedHourTo: Int
+
+    func timeExpireOnLocal() -> Date {
+
+        let cal = gCalendarMgr.userCalendar
+
+        if dayOrdinals.count > 4 {
+            fatalError("row with too many dayOrdinals \(self.description + self.name)")
+        }
+        let a = DateComponents(timeZone: cal.timeZone, hour: schedHourFrom, weekday: dayI+1 /*, weekdayOrdinal: dayOrdinals[0] */)
+        let b = DateComponents(timeZone: cal.timeZone, hour: schedHourFrom, weekday: dayI+1 /* , weekdayOrdinal: dayOrdinals[1] */)
+
+        let aD = cal.nextDate(after: Date(), matching: a, matchingPolicy: .nextTime)!
+        let bD = cal.nextDate(after: aD, matching: b, matchingPolicy: .nextTime)!
+
+        return aD < bD ? aD : bD
+    }
     var dayI: Int
+    var dayOrdinals: [Int]
     var blockSweepId: Int
 
     // https://data.sfgov.org/City-Infrastructure/Street-Sweeping-Schedule/yhqp-riqs
@@ -168,38 +193,47 @@ class RowStreetSweeping: NSObject {
             // 7641000,Judah St,06th Ave  -  07th Ave,L,South,Wed 2nd & 4th,Wed,7,8,0,1,0,1,0,0,1638646,"LINESTRING (-122.462972001083 37.762315769364, -122.46404200546 37.762268848832)"
             cnn = Int(values[RowFields.CNN.rawValue])!
             name = values[RowFields.Corridor.rawValue]
+
+            dayOrdinals = []
+            for cm in name.components(separatedBy: " ") {
+                if let ord = calT.firstIndex(of: cm) {
+                    self.dayOrdinals += [ord]
+                }
+            }
+            // no ordinals mentioned (2nd 4th of the month etc) check them all
+            if dayOrdinals.count == 0 {
+                dayOrdinals = [1, 2, 3, 4] // no 0
+            }
+
             blockSweepId = Int(values[RowFields.BlockSweepID.rawValue])!
             corridor = values[RowFields.Corridor.rawValue]
             // ignore values2, limits
             side = values[RowFields.CNNRightLeft.rawValue] == "R" ? .R : .L
-            schedText = values[RowFields.WeekDay.rawValue] + " " + values[RowFields.FromHour.rawValue]
+            schedText = values[RowFields.Limits.rawValue]
 
-            let cal = Calendar(identifier: .gregorian)
+            // from/to time-string parsing
+            guard let schedHourFrom = Int(values[RowFields.FromHour.rawValue]),
+                  let schedHourTo = Int(values[RowFields.ToHour.rawValue])
+            else {
+                fatalError("failed parsing FromHour / ToHour from \(values[RowFields.FromHour.rawValue])")
+            }
+            self.schedHourFrom = schedHourFrom
+            self.schedHourTo = schedHourTo
 
-            var dname = self.values[RowFields.WeekDay.rawValue]
+            let dname = self.values[RowFields.Limits.rawValue]
 
             if dname == "Holiday" {
                 //dname = "Sunday" // TODO: FIX THIS once I'm sane again
+                print("WARN: ignoring Holiday csv rows!")
                 return nil
             }
 
-            if let dayI = THEWEEK.firstIndex(where: { $0.contains(dname) }) {
-
-                guard let dest = cal.nextDate(after: Date(), matching: DateComponents(weekday: dayI+1), matchingPolicy: .nextTime)
-                else {
-                    fatalError()
-                }
-                self.timeExpire = dest
-                self.dayI = dayI
-            }
-            else
-            {
-                timeExpire = Date(timeIntervalSince1970: 0.0)
-                fatalError()
+            dayI = 0
+            if let i = THEWEEK.firstIndex(where: { $0.contains(dname) }) {
+                dayI = i
             }
 
             lineLength = 0
-
             for idx in 0..<tokes.count {
 
                 let vtxn = tokes[idx]
@@ -227,7 +261,9 @@ class RowStreetSweeping: NSObject {
     }
 
     static let rowSchedFormat: (RowStreetSweeping)->(String) = { s in
-        return "\(s.timeExpire)\n\(s.schedText)"
+
+        let expS = s.timeExpireOnLocal()
+        return "\(expS)\n\(s.schedText) " + "@ \(s.schedHourFrom)"
     }
 
 
@@ -291,38 +327,9 @@ extension RowStreetSweeping {
     // TODO: minimal intercept for this row edges.. split out the math maybe
     // TODO: unit vectors
 
-    func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate {
-        // row V
-//        let c = coord
 
-        // find intersection where y = Mx + b
 
-        // if rise is slope lat/lng
-        let Urise =  (b.latitude - a.latitude) / (b.longitude - a.longitude) // dont change this without reconsidering below
-        //let Urise =  (b.longitude - a.longitude) / (a.latitude - b.latitude) // dont change this without reconsidering below
-        // U = lat
-        // V = lng
-        //
-        let AClat = (c.latitude-a.latitude)
-        let CBlat = (c.latitude-b.latitude)
-        let AClng = (c.longitude-a.longitude)
-        let CBlng = (c.longitude-b.longitude)
-        let ABlat = (a.latitude-b.latitude)
-        let ABlng = (a.longitude-b.longitude)
-
-        // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
-        let u = ((AClat/Urise)*CBlng)
-        let v = ((AClng*Urise)*CBlat)
-
-        // sanity check this
-
-        let Ilat = u
-        let Ilng = v
-
-        return Coordinate(c.latitude-Ilat, c.longitude-Ilng)
-    }
-
-    func asyncRowInterceptSearch(near coord: Coordinate) -> (Edge, Coordinate, Double)? {
+    func interceptSearch(near coord: Coordinate) -> (Edge, Coordinate, Double)? {
         result = nil
         dResult = .infinity
         eResult = nil
@@ -363,4 +370,34 @@ extension RowStreetSweeping {
         }
     }
 
+}
+
+func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate {
+    // row V
+//        let c = coord
+
+    // find intersection where y = Mx + b
+
+    // if rise is slope lat/lng
+    let Urise =  (b.latitude - a.latitude) / (b.longitude - a.longitude) // dont change this without reconsidering below
+    // U = lat
+    // V = lng
+    //
+    let AClat = (c.latitude-a.latitude)
+    let BClat = (c.latitude-b.latitude)
+    let AClng = (c.longitude-a.longitude) 
+    let BClng = (c.longitude-b.longitude)
+    let ABlat = (a.latitude-b.latitude)
+    let ABlng = (a.longitude-b.longitude)
+
+    // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
+    let u = (AClat - BClat*Urise) * AClng + BClat
+    let v = (BClng - AClng/Urise) * AClat + BClng
+
+    // sanity check this
+
+    let Ilat = u
+    let Ilng = v
+
+    return Coordinate(c.latitude-Ilat, c.longitude-Ilng)
 }
