@@ -88,7 +88,7 @@ class ViewModel: NSObject {
             delegate.updateSchedule(Coordinate(latitude: curs.latitude, longitude: curs.longitude))
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             [weak self] in
             self?.refreshFromCursor()
         }

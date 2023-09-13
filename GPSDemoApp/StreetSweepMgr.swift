@@ -45,27 +45,29 @@ class StreetSweepMgr: NSObject {
         for r in [
            row1
           ,row2
-//          ,row3
-//          ,row4
+          ,row3
+          ,row4
         ] {
             rows += [RowStreetSweeping(r)!]
         }
 
-        if true
-        {
-            // math sanity
-            var r1 = RowStreetSweeping(
-                ["1191000", "1627862", "LINESTRING (-10 10, 10 -10)", "22nd St", "Friday", "Fri", "6", "8", "1", "1", "1", "1", "1", "L"]
-            )!
+        sanity()
+    }
 
-            let rc = Coordinate(-1, -1)
-            let rc1 = Coordinate(-1.5, -1)
-            let rc2 = Coordinate(-1, -3)
-            //        assert(r1.intercept(rc, r1....
-            //        print("\(r1.intercept(rc, Coordinate(-1, 1), Coordinate(1, -1)))")
-            //        print("\(r1.intercept(rc1, Coordinate(-1, 1), Coordinate(1, -1)))")
-            print("\(intercept(rc2, Coordinate(-3, 1), Coordinate(3, -2)))")
-        }
+    private func sanity()
+    {
+        // math sanity
+        var r1 = RowStreetSweeping(
+            ["1191000", "1627862", "LINESTRING (-10 10, 10 -10)", "22nd St", "Friday", "Fri", "6", "8", "1", "1", "1", "1", "1", "L"]
+        )!
+
+        let rc = Coordinate(-1, -1)
+        let rc1 = Coordinate(-1.5, -1)
+        let rc2 = Coordinate(-1, -3)
+        //        assert(r1.intercept(rc, r1....
+        //        print("\(r1.intercept(rc, Coordinate(-1, 1), Coordinate(1, -1)))")
+        //        print("\(r1.intercept(rc1, Coordinate(-1, 1), Coordinate(1, -1)))")
+        print("\(intercept(rc2, Coordinate(-3, 1), Coordinate(3, -2)))")
     }
 
     private func load()
@@ -112,15 +114,14 @@ class StreetSweepMgr: NSObject {
         }
     }
 
+    private var dResult = Double.infinity
+
     private func searchInternal(_ coord: CLLocationCoordinate2D, then doThis: @escaping (RowStreetSweeping?)->(Void)) {
         
-//        self.result = nil
+        //self.result = nil
 
         var dResult = Double.infinity
-
-        if rows.count > 8 {
-            pickyRowSearch = true // debug
-        }
+        var tResult: RowStreetSweeping! = nil
 
         for row in rows {
 
@@ -136,24 +137,28 @@ class StreetSweepMgr: NSObject {
                 {
                     matchedEdge = rpair.0
                     matchedIntercept = int
-                    result = row
+                    tResult = row
                     dResult = dInt
 
-                    //print("improving result: \(result.name) / \(dResult)")
+//                    print("improving result: \(tResult.name) / \(dResult) weight: \(tResult.dResult)")
                 }
             }
         }
 
+        print("approx row: \(rows.max(by: {$0.dResult > $1.dResult})?.name ?? "nil" )")
+
         DispatchQueue.main.async {
+            self.dResult = dResult
+            self.result = tResult
             //print("results: \(self.rows.sorted(by: { $0.dResult < $1.dResult }).map { $0.name })")
             doThis(self.result)
         }
     }
 
     func findSchedule(_ coord: CLLocationCoordinate2D, then thenDo: @escaping (RowStreetSweeping?)->(Void)) {
-//        DispatchQueue(label: "\(self)").async {
+        DispatchQueue(label: "\(self)").async {
             self.searchInternal(coord, then: thenDo)
-//        }
+        }
     }
 }
 

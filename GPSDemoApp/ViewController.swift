@@ -16,7 +16,7 @@ class ViewController: UIViewController {
     private var mapUI: MKMapView!
     private var streetView: BaseControlWithLabel = TextViewWithLabel(label: "Street")
     private var scheduleView: BaseControlWithLabel = TextViewWithLabel(label: "Schedule")
-    private var pathOverlay, debugOverlay: MKOverlay!
+    private var pathOverlay, debugOverlay, edgeOverlay: MKOverlay!
     private var pathOverlaySide: StreetSide!
 
     private let pad = 2.0
@@ -181,6 +181,7 @@ extension ViewController: ViewModelDelegate {
                 streetView.text = "???"
                 scheduleView.text = "???"
                 mapUI.removeOverlay(removeOver)
+                pathOverlay = nil
             }
 
             streetView.text = srow.streetText()
@@ -192,25 +193,23 @@ extension ViewController: ViewModelDelegate {
 
             pathOverlay = MKPolyline(coordinates: polyline, count: polyline.count)
             pathOverlaySide = srow.side
-
             mapUI.addOverlay(pathOverlay)
 
-            if let prevOv = debugOverlay {
-                mapUI.removeOverlay(prevOv)
-                debugOverlay = nil
-            }
-
             if let intCoord = viewModel.matchedIntercept {
+                if let prevOv = debugOverlay {
+                    mapUI.removeOverlay(prevOv)
+                }
                 debugOverlay = MKPolyline(coordinates: [intCoord, tailCoord], count: 2)
                 mapUI.addOverlay(debugOverlay)
             }
-            else
-            {
-                if let intEdge = viewModel.matchedEdge {
-                    let c = [intEdge.0, intEdge.1]
-                    debugOverlay = MKPolyline(coordinates:c , count: c.count)
-                    mapUI.addOverlay(debugOverlay)
+
+            if let intEdge = viewModel.matchedEdge {
+                let c = [intEdge.0, intEdge.1]
+                if edgeOverlay != nil {
+                    mapUI.removeOverlay(edgeOverlay)
                 }
+                edgeOverlay = MKPolyline(coordinates:c , count: c.count)
+                mapUI.addOverlay(edgeOverlay)
             }
         }
 
@@ -249,6 +248,9 @@ extension ViewController: MKMapViewDelegate {
         let overRenderer = MKPolylineRenderer(overlay: overlay)
         if overlay.isEqual(debugOverlay) {
             overRenderer.strokeColor = UIColor.cyan
+        }
+        else if overlay.isEqual(edgeOverlay) {
+            overRenderer.strokeColor = UIColor.yellow
         }
         else {
             overRenderer.strokeColor = pathOverlaySide == .R ? UIColor.blue : UIColor.green

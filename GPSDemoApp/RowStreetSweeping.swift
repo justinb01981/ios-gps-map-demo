@@ -37,9 +37,6 @@ fileprivate let calT = [
     "4th"
 ]
 
-var pickyRowSearch = false  // test data
-
-
 //CNN,Corridor,Limits,CNNRightLeft,BlockSide,FullName,WeekDay,FromHour,ToHour,Week1,Week2,Week3,Week4,Week5,Holidays,BlockSweepID,Line
 /*
 var cnn: SQLite.ColumnDefinition = .init(name: "CNN", type: .TEXT)
@@ -343,11 +340,11 @@ extension RowStreetSweeping {
             let loC = (coord.longitude-a.longitude)/b.longitude
 
             // (very tolerant) bounds check on this seg
-            if pickyRowSearch {
-                if laC < -0.1 || laC > 1.1 || loC < -1.1 || loC > 1.1 {
-                    continue
-                }
-            }
+//            if pickyRowSearch {
+//                if laC < -0.1 || laC > 1.1 || loC < -1.1 || loC > 1.1 {
+//                    continue
+//                }
+//            }
 
             let icpt = intercept(coord, a, b)
 
@@ -359,6 +356,10 @@ extension RowStreetSweeping {
                 dResult = dIcpt
                 eResult = edge
                 result = icpt
+                self.dResult += 0.001
+            }
+            else {
+                self.dResult *= 0.9
             }
         }
 
@@ -385,19 +386,19 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
     //
     let AClat = (c.latitude-a.latitude)
     let BClat = (c.latitude-b.latitude)
-    let AClng = (c.longitude-a.longitude) 
+    let AClng = (c.longitude-a.longitude)
     let BClng = (c.longitude-b.longitude)
     let ABlat = (a.latitude-b.latitude)
     let ABlng = (a.longitude-b.longitude)
 
     // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
-    let u = (AClat - BClat*Urise) * AClng + BClat
-    let v = (BClng - AClng/Urise) * AClat + BClng
+    let v = (BClng*Urise) - (AClat/Urise)
+    let u = (AClng*Urise) - (BClat/Urise)
 
     // sanity check this
 
-    let Ilat = u
-    let Ilng = v
+    let Ilng = AClat*(u/v) + AClng*(-Urise)
+    let Ilat = Ilng*(Urise)
 
-    return Coordinate(c.latitude-Ilat, c.longitude-Ilng)
+    return Coordinate(c.latitude-Ilng, c.longitude-Ilat)
 }
