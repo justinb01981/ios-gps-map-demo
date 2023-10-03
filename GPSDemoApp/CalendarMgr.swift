@@ -18,7 +18,11 @@ class CalendarMgr {
         )
         stor.requestAccess(to: .event) {
             ok, err in
-            print("access requested: ok: \(ok) error:\(err)")
+            if !ok, let err = err {
+                print("access requested / failed: ok:\(ok) error:\(err)")
+                return
+            }
+            print("access requested / success")
         }
     }
 

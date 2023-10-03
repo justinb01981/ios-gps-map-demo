@@ -14,8 +14,8 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "255"
-            endingLineNumber = "255"
+            startingLineNumber = "251"
+            endingLineNumber = "251"
             landmarkName = "init?(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "316"
-            endingLineNumber = "316"
+            startingLineNumber = "312"
+            endingLineNumber = "312"
             landmarkName = "dotProduct(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,73 +46,10 @@
             filePath = "GPSDemoApp/StreetSweepMgr.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
+            startingLineNumber = "52"
+            endingLineNumber = "52"
             landmarkName = "loadTest()"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "95131ACD-B544-4789-B9CD-EAAED11035C7"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "GPSDemoApp/RowStreetSweeping.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "351"
-            endingLineNumber = "351"
-            landmarkName = "interceptSearch(near:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "95131ACD-B544-4789-B9CD-EAAED11035C7 - 2e97a325e572f9ec"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "GPSDemoApp.RowStreetSweeping.interceptIfValid(__C.CLLocationCoordinate2D) -&gt; Swift.Optional&lt;((__C.CLLocationCoordinate2D, __C.CLLocationCoordinate2D), __C.CLLocationCoordinate2D)&gt;"
-                  moduleName = "GPSDemoApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/RowStreetSweeping.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "327"
-                  endingLineNumber = "327"
-                  offsetFromSymbolStart = "1519">
-               </Location>
-               <Location
-                  uuid = "95131ACD-B544-4789-B9CD-EAAED11035C7 - 2e97a325e572f9cd"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "GPSDemoApp.RowStreetSweeping.interceptIfValid(__C.CLLocationCoordinate2D) -&gt; Swift.Optional&lt;((__C.CLLocationCoordinate2D, __C.CLLocationCoordinate2D), __C.CLLocationCoordinate2D)&gt;"
-                  moduleName = "GPSDemoApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/RowStreetSweeping.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "326"
-                  endingLineNumber = "326"
-                  offsetFromSymbolStart = "1129">
-               </Location>
-               <Location
-                  uuid = "95131ACD-B544-4789-B9CD-EAAED11035C7 - 2e97a325e572f9ec"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "GPSDemoApp.RowStreetSweeping.interceptIfValid(__C.CLLocationCoordinate2D) -&gt; Swift.Optional&lt;((__C.CLLocationCoordinate2D, __C.CLLocationCoordinate2D), __C.CLLocationCoordinate2D)&gt;"
-                  moduleName = "GPSDemoApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/RowStreetSweeping.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "327"
-                  endingLineNumber = "327"
-                  offsetFromSymbolStart = "1183">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -125,8 +62,8 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "197"
-            endingLineNumber = "197"
+            startingLineNumber = "193"
+            endingLineNumber = "193"
             landmarkName = "init?(_:)"
             landmarkType = "7">
             <Locations>
@@ -220,6 +157,51 @@
                   endingLineNumber = "197"
                   offsetFromSymbolStart = "3328">
                </Location>
+               <Location
+                  uuid = "73EEEFE9-AF7A-4B85-836A-15CBEEBEF76E - 86a152e8aefbe22c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "GPSDemoApp.RowStreetSweeping.init(Swift.Array&lt;Swift.String&gt;) -&gt; Swift.Optional&lt;GPSDemoApp.RowStreetSweeping&gt;"
+                  moduleName = "GPSDemoApp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/RowStreetSweeping.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "197"
+                  endingLineNumber = "197"
+                  offsetFromSymbolStart = "3244">
+               </Location>
+               <Location
+                  uuid = "73EEEFE9-AF7A-4B85-836A-15CBEEBEF76E - 86a152e8aefbe2a8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "GPSDemoApp.RowStreetSweeping.init(Swift.Array&lt;Swift.String&gt;) -&gt; Swift.Optional&lt;GPSDemoApp.RowStreetSweeping&gt;"
+                  moduleName = "GPSDemoApp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/RowStreetSweeping.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "193"
+                  endingLineNumber = "193"
+                  offsetFromSymbolStart = "3072">
+               </Location>
+               <Location
+                  uuid = "73EEEFE9-AF7A-4B85-836A-15CBEEBEF76E - 86a152e8aefbe2a8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "GPSDemoApp.RowStreetSweeping.init(Swift.Array&lt;Swift.String&gt;) -&gt; Swift.Optional&lt;GPSDemoApp.RowStreetSweeping&gt;"
+                  moduleName = "GPSDemoApp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/RowStreetSweeping.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "193"
+                  endingLineNumber = "193"
+                  offsetFromSymbolStart = "4180">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -235,102 +217,38 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "42"
             endingLineNumber = "42"
-            landmarkName = "ViewController"
-            landmarkType = "3">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "72764A8D-AB51-4FA2-B0BF-8B03C2EC6D49"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "GPSDemoApp/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "39"
-            endingLineNumber = "39"
-            landmarkName = "ViewController"
-            landmarkType = "3">
+            landmarkName = "remindButton"
+            landmarkType = "24">
             <Locations>
                <Location
-                  uuid = "72764A8D-AB51-4FA2-B0BF-8B03C2EC6D49 - 13d9d671acd94c0a"
+                  uuid = "C7C0D020-84B0-4EA5-ADFE-89F0746DC614 - dfccb854a7dcf487"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in GPSDemoApp.ViewController.remindButton.getter : GPSDemoApp.BaseControlWithLabel"
+                  symbolName = "closure #1 (__C.UIAlertAction) -&gt; () in closure #1 (Swift.Optional&lt;__C.EKEvent&gt;) -&gt; () in closure #1 () -&gt; () in GPSDemoApp.ViewController.remindButton.getter : GPSDemoApp.BaseControlWithLabel"
                   moduleName = "GPSDemoApp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/ViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "39"
-                  endingLineNumber = "39"
-                  offsetFromSymbolStart = "144">
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "44">
                </Location>
                <Location
-                  uuid = "72764A8D-AB51-4FA2-B0BF-8B03C2EC6D49 - 80ccdacb2bf041ad"
+                  uuid = "C7C0D020-84B0-4EA5-ADFE-89F0746DC614 - dfccb854a7dcf487"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;__C.EKEvent&gt;) -&gt; () in closure #1 () -&gt; () in GPSDemoApp.ViewController.remindButton.getter : GPSDemoApp.BaseControlWithLabel"
+                  symbolName = "closure #1 (__C.UIAlertAction) -&gt; () in closure #1 (Swift.Optional&lt;__C.EKEvent&gt;) -&gt; () in closure #1 () -&gt; () in GPSDemoApp.ViewController.remindButton.getter : GPSDemoApp.BaseControlWithLabel"
                   moduleName = "GPSDemoApp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/ViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "43"
-                  endingLineNumber = "43"
-                  offsetFromSymbolStart = "280">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "0B45C272-81F2-4E07-9F2B-547151EFABF9"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "GPSDemoApp/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "37"
-            endingLineNumber = "37"
-            landmarkName = "ViewController"
-            landmarkType = "3">
-            <Locations>
-               <Location
-                  uuid = "0B45C272-81F2-4E07-9F2B-547151EFABF9 - 13d9d671acd94fc8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in GPSDemoApp.ViewController.remindButton.getter : GPSDemoApp.BaseControlWithLabel"
-                  moduleName = "GPSDemoApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/ViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "37"
-                  endingLineNumber = "37"
-                  offsetFromSymbolStart = "40">
-               </Location>
-               <Location
-                  uuid = "0B45C272-81F2-4E07-9F2B-547151EFABF9 - 13d9d671acd94fc8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in GPSDemoApp.ViewController.remindButton.getter : GPSDemoApp.BaseControlWithLabel"
-                  moduleName = "GPSDemoApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/workspace/GPSDemoApp/GPSDemoApp/ViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "37"
-                  endingLineNumber = "37"
-                  offsetFromSymbolStart = "116">
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "60">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -345,10 +263,26 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "403"
-            endingLineNumber = "403"
+            startingLineNumber = "400"
+            endingLineNumber = "400"
             landmarkName = "intercept(_:_:_:)"
             landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8D45E005-991B-4C47-AAC1-015C1862B7F2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "GPSDemoApp/StreetSweepMgr.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "68"
+            endingLineNumber = "68"
+            landmarkName = "sanity()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

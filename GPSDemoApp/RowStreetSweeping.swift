@@ -151,10 +151,6 @@ class RowStreetSweeping: NSObject {
     var side: StreetSide
     var sideOppositeRow: RowStreetSweeping?
 
-    var result: Coordinate! // last-calculated intercept
-    var dResult: Double = .infinity
-    var eResult: Edge!
-
     var values: [String]
 
     init?(_ an: RowValues) {
@@ -235,7 +231,7 @@ class RowStreetSweeping: NSObject {
 
                 let vtxn = tokes[idx]
                 let rise = vtxn.latitude / vtxn.longitude
-                let la = rise * (side == .R ? 0.0000000001 : -0.0000000001)
+                let la = rise * (  side == .R ? (MINRUN) : (-MINRUN)  )
                 //* (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
                 let lo = la  
                 // * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
@@ -324,63 +320,62 @@ extension RowStreetSweeping {
     // TODO: minimal intercept for this row edges.. split out the math maybe
     // TODO: unit vectors
 
+    // update weights of all rows based on cursor
+    func interceptSearch(near coord: Coordinate) -> (RowStreetSweeping, Edge, Coordinate, Double)? {
+    //    var result: Coordinate! // last-calculated intercept
+        var dResult: Double = .infinity
+        var eResult: Edge!
 
 
-    func interceptSearch(near coord: Coordinate) -> (Edge, Coordinate, Double)? {
-        result = nil
+//        fix this shit must return a result?
         dResult = .infinity
         eResult = nil
 
-        for i in 1..<line.count {
+        var icptR: Coordinate!
+
+        for i in 1..<line.count {   // for each edge...
 
             let a = line[i+ICPTA]
             let b = line[i+ICPTB]
 
-            let laC = (coord.latitude-a.latitude)/b.latitude
-            let loC = (coord.longitude-a.longitude)/b.longitude
+            eResult = .init((latitude: a, longitude: b))
 
-            // (very tolerant) bounds check on this seg
+//            let laC = (coord.latitude-a.latitude)/b.latitude
+//            let loC = (coord.longitude-a.longitude)/b.longitude
+//
+//             (very tolerant) bounds check on this seg
 //            if pickyRowSearch {
 //                if laC < -0.1 || laC > 1.1 || loC < -1.1 || loC > 1.1 {
 //                    continue
 //                }
 //            }
 
-            let icpt = intercept(coord, a, b)
+            let abIcpt = intercept(coord, a, b)
+            icptR = abIcpt
 
-            let dIcpt = dist2(icpt.latitude, icpt.longitude, coord.latitude, coord.longitude)
+            // TODO: use "run" along vector to sort by proxmity
+            let dResTmp = dist2(icptR.latitude, icptR.longitude, coord.latitude, coord.longitude)
 
-            let edge = (icpt, line[i+ICPTA])
-
-            if dIcpt < dResult {
-                dResult = dIcpt
-                eResult = edge
-                result = icpt
-                self.dResult += 0.001
-            }
-            else {
-                self.dResult *= 0.9
+            if dResTmp < dResult {
+                eResult = (icptR, line[i+ICPTA])
+                dResult = dResTmp
             }
         }
 
-        if let result = result, let eResult = eResult {
-            return (eResult, result, dResult)
-        }
-        else {
-            return nil
-        }
+        return (self, eResult!, icptR, dResult)
+
     }
+
 
 }
 
 func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate {
-    // row V
-//        let c = coord
 
     // find intersection where y = Mx + b
 
     // if rise is slope lat/lng
     let Urise =  (b.latitude - a.latitude) / (b.longitude - a.longitude) // dont change this without reconsidering below
+    let Vrise =  (b.longitude - a.longitude) / -(b.latitude - a.latitude) // dont change this without reconsidering below
     // U = lat
     // V = lng
     //
@@ -392,13 +387,15 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
     let ABlng = (a.longitude-b.longitude)
 
     // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
-    let v = (BClng*Urise) - (AClat/Urise)
-    let u = (AClng*Urise) - (BClat/Urise)
+//    let v = (BClng*Urise) - (AClat/Urise)
+//    let u = (AClng*Urise) - (BClat/Urise)
+
+    let scLa = (AClat/AClng)
+    let scLb = (BClng/BClat)
 
     // sanity check this
+    let Ilng = scLb*Vrise - scLa*Urise    //+ (AClng-BClng)
+    let Ilat = Ilng*Urise //+ AClng/Vrise
 
-    let Ilng = AClat*(u/v) + AClng*(-Urise)
-    let Ilat = Ilng*(Urise)
-
-    return Coordinate(c.latitude-Ilng, c.longitude-Ilat)
+    return Coordinate(c.latitude-Ilat, c.longitude-Ilng)
 }

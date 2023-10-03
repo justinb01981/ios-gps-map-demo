@@ -173,7 +173,8 @@ extension ViewController: ViewModelDelegate {
             [unowned self] srow in
 
             guard let srow = srow, srow.line.count > 0 else {
-                fatalError("sweep schedule search no row or empty-line row found")
+//                print("sweep schedule search no row or empty-line row found")
+                return
             }
 
             // remove previous drawing
@@ -181,7 +182,6 @@ extension ViewController: ViewModelDelegate {
                 streetView.text = "???"
                 scheduleView.text = "???"
                 mapUI.removeOverlay(removeOver)
-                pathOverlay = nil
             }
 
             streetView.text = srow.streetText()
@@ -205,6 +205,7 @@ extension ViewController: ViewModelDelegate {
 
             if let intEdge = viewModel.matchedEdge {
                 let c = [intEdge.0, intEdge.1]
+
                 if edgeOverlay != nil {
                     mapUI.removeOverlay(edgeOverlay)
                 }

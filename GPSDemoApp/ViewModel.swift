@@ -17,6 +17,13 @@ protocol ViewModelDelegate: NSObject {
     func replaceTarget(_ c: Coordinate)
 }
 
+struct RowSearchResult {
+    let edge: Edge
+    let interceptCoordinate: Coordinate
+    let row:RowStreetSweeping
+    let dotProduct: Double
+}
+
 class ViewModel: NSObject {
     weak var delegate: ViewModelDelegate!
 
@@ -44,22 +51,26 @@ class ViewModel: NSObject {
         }
     }
 
-    var matchedIntercept: Coordinate! {
+    var rows: [RowStreetSweeping] {
         get {
-            StreetSweepMgr.shared.matchedIntercept
+            StreetSweepMgr.shared.rows
         }
     }
 
-    var matchedEdge: Edge! {
-        get {
-            StreetSweepMgr.shared.matchedEdge
-        }
-    }
+    var matchedIntercept: Coordinate!
+
+    var matchedEdge: Edge!
 
     var foundRow: RowStreetSweeping!
 
     private func tailRow() -> LocationLogEntry? {
         return LocationLog.shared.all.last
+    }
+
+    private func findSchedule(_ coord: CLLocationCoordinate2D, then thenDo: @escaping (RowSearchResult?)->(Void)) {
+//        DispatchQueue(label: "\(self)").async {
+            self.searchInternal(coord, then: thenDo)
+//        }
     }
 
     func sweepLocation() -> Coordinate? {
@@ -72,13 +83,74 @@ class ViewModel: NSObject {
     func sweepScheduleSearch(_ loc: Coordinate, then doThisShit: @escaping (RowStreetSweeping?)->(Void)) {
         let loc = delegate.targetLocation()
 
-        foundRow = nil
+        findSchedule(loc, then: {
+            res in
 
-        StreetSweepMgr.shared.findSchedule(loc, then: {
-            row in
-            self.foundRow = row
-            doThisShit(row)
+            if let row = res?.row {
+
+                doThisShit(row)
+            }
+            else {
+                doThisShit(nil)
+            }
         })
+    }
+
+    private func searchInternal(_ coord: CLLocationCoordinate2D, then doThis: @escaping ((RowSearchResult)?)->(Void)) {
+
+        //self.result = nil
+
+        var dResult = Double.infinity
+        var rowResult: RowSearchResult! = nil
+
+        for row in StreetSweepMgr.shared.rows {
+            print("search row \(row.name)")
+
+            let rpair = row.interceptSearch(near: coord)
+
+            if !false
+            {
+                guard let rpair = rpair else {
+                    fatalError("you broke something")
+                }
+
+                //
+                //(RowStreetSweeping, Edge, Coordinate, Double)?
+                // todo: fix this stupid mapping-to-closure debt
+                let sRes = RowSearchResult(edge: rpair.1, interceptCoordinate: rpair.2, row: rpair.0, dotProduct: rpair.3)
+
+                let rEdge = sRes.edge
+                let int = sRes.interceptCoordinate
+
+//                let dRun = dist2(int.latitude, int.longitude, coord.latitude, coord.longitude)
+                let dRun = sRes.dotProduct
+
+                if dRun < dResult &&
+//                    dRun > MINRUN && dRun < MAXRUN
+                    dist2(rEdge.0.latitude, rEdge.0.longitude, rEdge.1.latitude, rEdge.1.longitude) > MINRUN // skip short edges?
+//                    &&
+//                    laC > 0.0 && laC < 1.0 &&
+//                    loC > 0.0 && loC < 1.0
+                {
+
+                    matchedEdge = rEdge
+                    matchedIntercept = int
+                    rowResult = sRes
+
+                    dResult = dRun
+                    print("improving result: \(rowResult.row.name) run: \(dRun)")
+                }
+                else {
+                    //print("skipping result: \(rowResult.row.name) run: \(dRun))")
+                }
+            }
+        }
+
+//        DispatchQueue.main.async {
+            // self.foundRow set elsewhere
+//            print("results: \(self.rows.sorted(by: { $0.dResult < $1.dResult }).map { $0.name })")
+            doThis(rowResult)
+//        }
     }
 
     func refreshFromCursor() {
@@ -109,3 +181,6 @@ class ViewModel: NSObject {
         MyLocationManager.shared.stopObserving()
     }
 }
+
+
+
