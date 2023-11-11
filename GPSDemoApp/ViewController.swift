@@ -26,6 +26,13 @@ class ViewController: UIViewController {
 
     private var sweepingManager: StreetSweepMgr!
 
+    var centeredAtStart = false
+
+    var newMarker: MKPointAnnotation! // represents gps
+    var newMarkerCenter: MKPointAnnotation! // represents cursor
+
+    var overlayHackStrokeBothsides = false
+
     lazy private var remindButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Reminder", withAction: {
         // TODO: set reminder
 
@@ -111,6 +118,8 @@ class ViewController: UIViewController {
 
         sweepingManager = StreetSweepMgr(city: Settings.shared.city)
         MyLocationManager.shared.restart()
+
+        pollCursor()
     }
 
     @objc func clearLog() {
@@ -122,22 +131,30 @@ class ViewController: UIViewController {
         //print("touch event \(event) \(touches)")
     }
 
-    var centeredAtStart = false
 
-    var newMarker: MKPointAnnotation! // represents gps
-    var newMarkerCenter: MKPointAnnotation! // represents cursor
+    private var pollCursorLast = CLLocationCoordinate2D()
 
-    var overlayHackStrokeBothsides = false
+    private func pollCursor() {
+
+        let c = self.mapUI.centerCoordinate
+
+        DispatchQueue(label: "pollCursor").asyncAfter(deadline: .now()+0.1) {
+            [weak self] in
+
+            if c != self?.pollCursorLast {
+                self?.pollCursorLast = c
+                self?.viewModel.refreshFromCursor()
+            }
+
+            self?.pollCursor()
+        }
+    }
 
 }
 
 extension ViewController: ViewModelDelegate {
     func targetLocation() -> Coordinate {
         mapUI.camera.centerCoordinate
-    }
-
-    func replaceTarget(_ c: Coordinate) {
-        mapUI.camera.centerCoordinate = c
     }
 
     func updatedMyLocation(_ tailCoord: Coordinate) {
@@ -166,14 +183,12 @@ extension ViewController: ViewModelDelegate {
         }
     }
 
-    func updateSchedule(_ tailCoord: Coordinate) {
+    private func renderRow(_ srow: RowStreetSweeping) {
+        if true
+        {
 
-        viewModel.sweepScheduleSearch(tailCoord) {
-
-            [unowned self] srow in
-
-            guard let srow = srow, srow.line.count > 0 else {
-//                print("sweep schedule search no row or empty-line row found")
+            guard srow.line.count > 0 else {
+                //                print("sweep schedule search no row or empty-line row found")
                 return
             }
 
@@ -196,14 +211,16 @@ extension ViewController: ViewModelDelegate {
             mapUI.addOverlay(pathOverlay)
 
             if let intCoord = viewModel.matchedIntercept {
+
                 if let prevOv = debugOverlay {
                     mapUI.removeOverlay(prevOv)
                 }
-                debugOverlay = MKPolyline(coordinates: [intCoord, tailCoord], count: 2)
+                debugOverlay = MKPolyline(coordinates: [intCoord, /*tailCoord*/ mapUI.centerCoordinate], count: 2)
                 mapUI.addOverlay(debugOverlay)
             }
 
             if let intEdge = viewModel.matchedEdge {
+
                 let c = [intEdge.0, intEdge.1]
 
                 if edgeOverlay != nil {
@@ -213,23 +230,44 @@ extension ViewController: ViewModelDelegate {
                 mapUI.addOverlay(edgeOverlay)
             }
         }
+    }
 
-        if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: CursorAnnotationViewName)
-        {
-            if let old = newMarkerCenter { mapUI.removeAnnotation(old) }
+    func updateSchedule(_ tailCoord: Coordinate) {
 
-            newMarkerCenter = MKPointAnnotation()
-            annotGps.annotation = newMarkerCenter
-            newMarkerCenter.coordinate = mapUI.centerCoordinate
-            newMarkerCenter.title = CursorAnnotationViewName
+        viewModel.sweepScheduleSearch(tailCoord) {
+            [unowned self] srow in
 
-            // TODO: move some to viewmodel
-            mapUI.addAnnotation(newMarkerCenter) // repeat it anyway
+            let srow = srow!
+            DispatchQueue.main.async {
+                renderRow(srow)
+            }
         }
+
+        DispatchQueue.main.async {
+            [unowned self] in
+
+            if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: CursorAnnotationViewName)
+            {
+                if let old = newMarkerCenter { mapUI.removeAnnotation(old) }
+
+                newMarkerCenter = MKPointAnnotation()
+                annotGps.annotation = newMarkerCenter
+                newMarkerCenter.coordinate = mapUI.centerCoordinate
+                newMarkerCenter.title = CursorAnnotationViewName
+
+                // TODO: move some to viewmodel
+                mapUI.addAnnotation(newMarkerCenter) // repeat it anyway
+            }
+        }
+
     }
 }
 
 extension ViewController: MKMapViewDelegate {
+
+//    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+//      viewModel.refreshFromCursor()
+//    }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let annotView = mapUI.dequeueReusableAnnotationView(withIdentifier: annotation.title!!)

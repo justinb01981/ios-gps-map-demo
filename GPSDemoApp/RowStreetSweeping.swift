@@ -321,61 +321,50 @@ extension RowStreetSweeping {
     // TODO: unit vectors
 
     // update weights of all rows based on cursor
-    func interceptSearch(near coord: Coordinate) -> (RowStreetSweeping, Edge, Coordinate, Double)? {
-    //    var result: Coordinate! // last-calculated intercept
+    func interceptSearch(near coord: Coordinate) -> (RowStreetSweeping, Edge, Coordinate, Double) {
+
         var dResult: Double = .infinity
-        var eResult: Edge!
-
-
-//        fix this shit must return a result?
-        dResult = .infinity
-        eResult = nil
-
-        var icptR: Coordinate!
+        var icptR: Coordinate = .init(.infinity, .infinity)
+        var eResult: Edge = (icptR, icptR)
 
         for i in 1..<line.count {   // for each edge...
 
             let a = line[i+ICPTA]
             let b = line[i+ICPTB]
 
-            eResult = .init((latitude: a, longitude: b))
+            let intercep = intercept(coord, a, b)
+            let D = dist2(a.latitude, a.longitude, coord.latitude, coord.longitude)
+            let Dedge = dist2(a.latitude, a.longitude, b.latitude, b.longitude)
 
-//            let laC = (coord.latitude-a.latitude)/b.latitude
-//            let loC = (coord.longitude-a.longitude)/b.longitude
-//
-//             (very tolerant) bounds check on this seg
-//            if pickyRowSearch {
-//                if laC < -0.1 || laC > 1.1 || loC < -1.1 || loC > 1.1 {
-//                    continue
-//                }
-//            }
+            // respect direction - depending on which side of the line
 
-            let abIcpt = intercept(coord, a, b)
-            icptR = abIcpt
+            let direction: StreetSide = (intercep.latitude - coord.latitude) / (b.latitude - a.latitude) > 0 ? .L : .R
 
-            // TODO: use "run" along vector to sort by proxmity
-            let dResTmp = dist2(icptR.latitude, icptR.longitude, coord.latitude, coord.longitude)
+            // if D is > segment length forget it
+            if direction == side &&
+                D < Dedge &&   // NO - test range of each line segment
+                D < dResult {  // lineLength fudge ?
 
-            if dResTmp < dResult {
-                eResult = (icptR, line[i+ICPTA])
-                dResult = dResTmp
+                icptR = intercep
+                eResult = (b, a)
+                dResult = D
             }
         }
 
-        return (self, eResult!, icptR, dResult)
-
+        return (self, eResult, icptR, dResult)
     }
-
 
 }
 
 func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate {
 
-    // find intersection where y = Mx + b
+    // find intersection where y = Mx + b, a being the origin
+    let ABlat = (b.latitude-a.latitude)
+    let ABlng = (b.longitude-a.longitude)
 
     // if rise is slope lat/lng
-    let Urise =  (b.latitude - a.latitude) / (b.longitude - a.longitude) // dont change this without reconsidering below
-    let Vrise =  (b.longitude - a.longitude) / -(b.latitude - a.latitude) // dont change this without reconsidering below
+    let rise = ABlng / ABlat
+
     // U = lat
     // V = lng
     //
@@ -383,19 +372,17 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
     let BClat = (c.latitude-b.latitude)
     let AClng = (c.longitude-a.longitude)
     let BClng = (c.longitude-b.longitude)
-    let ABlat = (a.latitude-b.latitude)
-    let ABlng = (a.longitude-b.longitude)
 
     // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
-//    let v = (BClng*Urise) - (AClat/Urise)
-//    let u = (AClng*Urise) - (BClat/Urise)
 
-    let scLa = (AClat/AClng)
-    let scLb = (BClng/BClat)
+    let u = AClng / rise
+    let v = u * rise
 
-    // sanity check this
-    let Ilng = scLb*Vrise - scLa*Urise    //+ (AClng-BClng)
-    let Ilat = Ilng*Urise //+ AClng/Vrise
+//    print("""
+//    rise=\(rise)
+//    v=\(v)
+//    u=\(u)
+//    """)
 
-    return Coordinate(c.latitude-Ilat, c.longitude-Ilng)
+    return Coordinate(a.latitude+u, a.longitude+v)
 }

@@ -29,9 +29,14 @@ extension Vertex {
 let dist2: (Double, Double, Double, Double) -> Double = {
     la1, lo1, la2, lo2 in
 
-    return sqrt(
-        pow(la2-la1, 2) * pow(lo2-lo1, 2)
-    )
+    let u = la2 - la1
+    let v = lo2 - lo1
+
+    let res = sqrt( u*u + v*v )
+
+    if res == 0 { fatalError() }    // you have fucked something upx
+
+    return res
 }
 
 // distance to nearest point
