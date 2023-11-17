@@ -11,6 +11,8 @@
 		D0118D9A2A5C643C000750A3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0118D992A5C643C000750A3 /* Main.storyboard */; };
 		D0118D9E2A5C7B7A000750A3 /* DotAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0118D9D2A5C7B7A000750A3 /* DotAnnotationView.swift */; };
 		D0118DA12A6B3990000750A3 /* CLLocation+Equabable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0118DA02A6B3990000750A3 /* CLLocation+Equabable.swift */; };
+		D04BF53A2B05726E00E98B64 /* UserLicensing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04BF5392B05726E00E98B64 /* UserLicensing.swift */; };
+		D04BF53C2B05775B00E98B64 /* DownloadDelegateBasic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04BF53B2B05775B00E98B64 /* DownloadDelegateBasic.swift */; };
 		D063F9F62AB5B39F00F3FFC1 /* constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D063F9F52AB5B39F00F3FFC1 /* constants.swift */; };
 		D067AE5D2AAA3E3500DC8C31 /* CalendarMgr.swift in Sources */ = {isa = PBXBuildFile; fileRef = D067AE5C2AAA3E3500DC8C31 /* CalendarMgr.swift */; };
 		D07471B92A39050D00B20AD1 /* StreetSweepMgr.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */; };
@@ -40,6 +42,8 @@
 		D0118D992A5C643C000750A3 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		D0118D9D2A5C7B7A000750A3 /* DotAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DotAnnotationView.swift; sourceTree = "<group>"; };
 		D0118DA02A6B3990000750A3 /* CLLocation+Equabable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocation+Equabable.swift"; sourceTree = "<group>"; };
+		D04BF5392B05726E00E98B64 /* UserLicensing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLicensing.swift; sourceTree = "<group>"; };
+		D04BF53B2B05775B00E98B64 /* DownloadDelegateBasic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadDelegateBasic.swift; sourceTree = "<group>"; };
 		D063F9F52AB5B39F00F3FFC1 /* constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = constants.swift; sourceTree = "<group>"; };
 		D067AE5C2AAA3E3500DC8C31 /* CalendarMgr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMgr.swift; sourceTree = "<group>"; };
 		D07471B82A39050D00B20AD1 /* StreetSweepMgr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreetSweepMgr.swift; sourceTree = "<group>"; };
@@ -115,11 +119,13 @@
 		D0D2BD3725F2EF2A009B8BDF /* GPSDemoApp */ = {
 			isa = PBXGroup;
 			children = (
+				D04BF53B2B05775B00E98B64 /* DownloadDelegateBasic.swift */,
 				D067AE5C2AAA3E3500DC8C31 /* CalendarMgr.swift */,
 				D0AF1DA82A6F2C6000D0FAE5 /* vectors.swift */,
 				D0D2BD3825F2EF2A009B8BDF /* AppDelegate.swift */,
 				D0118D9D2A5C7B7A000750A3 /* DotAnnotationView.swift */,
 				D0D2BD3A25F2EF2A009B8BDF /* SceneDelegate.swift */,
+				D04BF5392B05726E00E98B64 /* UserLicensing.swift */,
 				D0D2BD3C25F2EF2A009B8BDF /* ViewController.swift */,
 				D0D2BD4C25F2EF56009B8BDF /* ViewModel.swift */,
 				D0D2BD5425F6E6E7009B8BDF /* InputViewWithLabel.swift */,
@@ -265,11 +271,13 @@
 				D0118D542A5C51C3000750A3 /* ControlsView.swift in Sources */,
 				D0118D9E2A5C7B7A000750A3 /* DotAnnotationView.swift in Sources */,
 				D067AE5D2AAA3E3500DC8C31 /* CalendarMgr.swift in Sources */,
+				D04BF53C2B05775B00E98B64 /* DownloadDelegateBasic.swift in Sources */,
 				D07471C22A3D21C600B20AD1 /* streetsweeping.xcdatamodeld in Sources */,
 				D0D2BD3925F2EF2A009B8BDF /* AppDelegate.swift in Sources */,
 				D0D2BD4D25F2EF56009B8BDF /* ViewModel.swift in Sources */,
 				D0D2BD5325F6D0F1009B8BDF /* Settings.swift in Sources */,
 				D063F9F62AB5B39F00F3FFC1 /* constants.swift in Sources */,
+				D04BF53A2B05726E00E98B64 /* UserLicensing.swift in Sources */,
 				D0D2BD3B25F2EF2A009B8BDF /* SceneDelegate.swift in Sources */,
 				D07471BF2A3CF66D00B20AD1 /* Config.swift in Sources */,
 				D0D2BD5525F6E6E7009B8BDF /* InputViewWithLabel.swift in Sources */,

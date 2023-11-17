@@ -14,6 +14,7 @@ import SQLite
 let TABLE_NAME = "street_sweeping_sf"
 let TableStreetSweeping = SQLite.Table(TABLE_NAME)
 let SELECT_QUERY = "SELECT Line FROM \(TABLE_NAME)"
+// MUST MATCH ENUM
 let selectBindings: [Expression<String>] = [Expression<String>("CNN"),
                                             Expression<String>("BlockSweepID"),
                                             Expression<String>("Line"),
@@ -30,12 +31,14 @@ let selectBindings: [Expression<String>] = [Expression<String>("CNN"),
 
 fileprivate let ICPTA: Int = -1
 fileprivate let ICPTB: Int = 0
-fileprivate let calT = [
+fileprivate let ORDINALS = [
     "1st",
     "2nd",
     "3rd",
-    "4th"
+    "4th",
+    "5th"
 ]
+fileprivate let weekDays = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Holiday"]
 
 //CNN,Corridor,Limits,CNNRightLeft,BlockSide,FullName,WeekDay,FromHour,ToHour,Week1,Week2,Week3,Week4,Week5,Holidays,BlockSweepID,Line
 /*
@@ -60,7 +63,7 @@ var line: SQLite.ColumnDefinition = .init(name: "Line", type: .TEXT)
 */
 
 fileprivate let wktpfx = "LINESTRING ("
-fileprivate let THEWEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Holiday"]
+fileprivate let THEWEEK = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "holiday"]
 
 // TODO: tweak this based on rows
 fileprivate let LEFTRIGHT_BIAS = 0.0000000000001
@@ -121,28 +124,14 @@ class RowStreetSweeping: NSObject {
     var line: [Coordinate]
     var lineLength: Double
     var name: String
+    var weekOfMonth: [Int]
 
     var schedText: String
     var schedHourFrom: Int
     var schedHourTo: Int
 
-    func timeExpireOnLocal() -> Date {
 
-        let cal = gCalendarMgr.userCalendar
-
-        if dayOrdinals.count > 4 {
-            fatalError("row with too many dayOrdinals \(self.description + self.name)")
-        }
-        let a = DateComponents(timeZone: cal.timeZone, hour: schedHourFrom, weekday: dayI+1 /*, weekdayOrdinal: dayOrdinals[0] */)
-        let b = DateComponents(timeZone: cal.timeZone, hour: schedHourFrom, weekday: dayI+1 /* , weekdayOrdinal: dayOrdinals[1] */)
-
-        let aD = cal.nextDate(after: Date(), matching: a, matchingPolicy: .nextTime)!
-        let bD = cal.nextDate(after: aD, matching: b, matchingPolicy: .nextTime)!
-
-        return aD < bD ? aD : bD
-    }
     var dayI: Int
-    var dayOrdinals: [Int]
     var blockSweepId: Int
 
     // https://data.sfgov.org/City-Infrastructure/Street-Sweeping-Schedule/yhqp-riqs
@@ -185,17 +174,36 @@ class RowStreetSweeping: NSObject {
             // TODO: respect column names from csv - e.g.
             // 7641000,Judah St,06th Ave  -  07th Ave,L,South,Wed 2nd & 4th,Wed,7,8,0,1,0,1,0,0,1638646,"LINESTRING (-122.462972001083 37.762315769364, -122.46404200546 37.762268848832)"
             cnn = Int(values[RowFields.CNN.rawValue])!
-            name = values[RowFields.Corridor.rawValue]
+            name = String(values[RowFields.Corridor.rawValue])
 
-            dayOrdinals = []
-            for cm in name.components(separatedBy: " ") {
-                if let ord = calT.firstIndex(of: cm) {
-                    self.dayOrdinals += [ord]
+            // format here ex:
+            // "Wed 2nd and 4th"
+
+            let dayName = String(values[RowFields.WeekDay.rawValue])
+
+            let fieldRaw = String(values[RowFields.Limits.rawValue])
+
+            // don't forget to trim the commas ,
+            let fieldComp = fieldRaw.components(separatedBy: " ").map({ $0.trimmingCharacters(in: CharacterSet(charactersIn: ",")) })
+            if fieldComp.count > 1 {
+                print("fieldComp w/ord found: \(fieldComp)")
+            }
+
+            weekOfMonth = []    // construct this set from the schedule text
+            for ordMaybe in fieldComp {
+                if let x = ORDINALS.firstIndex(where: { $0 == ordMaybe }) {
+                    weekOfMonth += [x+1]    // weeks start at 1
+                }
+                else {
+                    print("WARN: ignoring weekOfMonth token: \(ordMaybe)")
                 }
             }
-            // no ordinals mentioned (2nd 4th of the month etc) check them all
-            if dayOrdinals.count == 0 {
-                dayOrdinals = [1, 2, 3, 4] // no 0
+
+            if weekOfMonth.count == 0 {
+                weekOfMonth = [1, 2, 3, 4]
+            }
+            else {
+                print("cool: weekOfMonth = \(weekOfMonth)")
             }
 
             blockSweepId = Int(values[RowFields.BlockSweepID.rawValue])!
@@ -213,16 +221,16 @@ class RowStreetSweeping: NSObject {
             self.schedHourFrom = schedHourFrom
             self.schedHourTo = schedHourTo
 
-            let dname = self.values[RowFields.Limits.rawValue]
+            let dname = self.values[RowFields.Limits.rawValue].components(separatedBy: " ").first!
 
-            if dname == "Holiday" {
+            if dname.lowercased() == "holiday" {
                 //dname = "Sunday" // TODO: FIX THIS once I'm sane again
                 print("WARN: ignoring Holiday csv rows!")
                 return nil
             }
 
             dayI = 0
-            if let i = THEWEEK.firstIndex(where: { $0.contains(dname) }) {
+            if let i = THEWEEK.firstIndex(where: { $0.contains(dname.lowercased()) }) {
                 dayI = i
             }
 
@@ -253,15 +261,51 @@ class RowStreetSweeping: NSObject {
         }
     }
 
+
+
     static let rowSchedFormat: (RowStreetSweeping)->(String) = { s in
 
+        let df = DateFormatter()
+        df.dateFormat = "YYYY-MM-dd HH:mm"
+//        df.timeZone = Calendar.current.timeZone
         let expS = s.timeExpireOnLocal()
-        return "\(expS)\n\(s.schedText) " + "@ \(s.schedHourFrom)"
+        return "\(df.string(from: expS))\n'\(s.schedText) " + "@ \(s.schedHourFrom)'"
     }
 
 
     static let scheduleFormat:(RowStreetSweeping)->(String) = { s in
         return "\(rowSchedFormat(s)) "  //\n \(rowSchedFormat(s.sideOppositeRow!))"
+    }
+}
+
+extension RowStreetSweeping {
+    func timeExpireOnLocal() -> Date {
+
+        // HACK: using a n extern singleton here
+        let cal = gCalendarMgr.userCalendar
+
+        let p: Calendar.MatchingPolicy = .nextTime
+
+        var nextDateResult: Date! = .distantFuture
+
+        for o in weekOfMonth {
+
+            // TODO: use weekdayOrdinal
+            if let tmp  =
+                cal.nextDate(after: Date(), matching: .init(timeZone: cal.timeZone, weekday: dayI+1),
+                             matchingPolicy: p) {
+
+                // TODO: if week of month matches
+
+                if abs(nextDateResult.timeIntervalSinceNow) > abs(tmp.timeIntervalSinceNow) {
+                    nextDateResult = tmp
+                }
+            }
+        }
+
+        print("\(self) timeExpireOnLocal(): \(nextDateResult)")
+
+        return nextDateResult.advanced(by: Double(schedHourFrom) * 3600.0)
     }
 }
 

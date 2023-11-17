@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import CoreLocation
+import EventKit
 
 protocol ViewModelDelegate: NSObject {
     func updatedMyLocation(_ c: Coordinate)
@@ -16,15 +17,21 @@ protocol ViewModelDelegate: NSObject {
     func targetLocation() -> Coordinate
 }
 
+protocol DLDelegate: NSObject {
+    func downloadBegin(_ doThis: @escaping (DLDelegate, Data?)->Void)
+}
+
 struct RowSearchResult {
     let edge: Edge
     let interceptCoordinate: Coordinate
-    let row:RowStreetSweeping
+    let row: RowStreetSweeping
     let product: Double
 }
 
 class ViewModel: NSObject {
     weak var delegate: ViewModelDelegate!
+
+     var dlDelegate: DLDelegate! = DownloadDelegateBasic()
 
     static let kLocationLogKey = "loggedLocations"
 
@@ -60,13 +67,14 @@ class ViewModel: NSObject {
 
     var matchedEdge: Edge!
 
-    var foundRow: RowStreetSweeping!
+    var lastSearchResult: RowSearchResult!
 
     private func tailRow() -> LocationLogEntry? {
         return LocationLog.shared.all.last
     }
 
     private func findSchedule(_ coord: CLLocationCoordinate2D, then thenDo: @escaping (RowSearchResult?)->(Void)) {
+
 //        DispatchQueue(label: "\(self)").async {
             self.searchInternal(coord, then: thenDo)
 //        }
@@ -82,11 +90,22 @@ class ViewModel: NSObject {
     func sweepScheduleSearch(_ loc: Coordinate, then doThisShit: @escaping (RowStreetSweeping?)->(Void)) {
         let loc = delegate.targetLocation()
 
+        if UserLicensing.shared.isLicensed(forLocation: loc) {
+
+            dlDelegate.downloadBegin {
+
+
+                [weak self] me, dataOpt in
+
+                print("\(dataOpt)")
+                //
+            }
+        }
+
         findSchedule(loc, then: {
             res in
 
             if let row = res?.row {
-
                 doThisShit(row)
             }
             else {
@@ -100,6 +119,7 @@ class ViewModel: NSObject {
         var dResult = Double.infinity
         var rowResult: RowSearchResult! = nil
 
+        // SEARCH ALL ROWS
         for row in StreetSweepMgr.shared.rows {
 
             // NOTE: somehwere remember that intercept search will exclude where the point falls outside the segment
@@ -125,12 +145,14 @@ class ViewModel: NSObject {
         }
 
         guard let rowResult = rowResult else {
+            print("\(self) NO MATCHING ROW FOUND")
             return
         }
 
         matchedEdge = rowResult.edge
         matchedIntercept = rowResult.interceptCoordinate
 
+        lastSearchResult = rowResult
         doThis(rowResult)
     }
 
@@ -139,6 +161,16 @@ class ViewModel: NSObject {
         if let delegate = delegate {
             let curs = delegate.targetLocation()
             delegate.updateSchedule(Coordinate(latitude: curs.latitude, longitude: curs.longitude))
+        }
+    }
+
+    func createReminder(_ fr: RowStreetSweeping, thenDo: (EKEvent?)->Void) {
+
+        gCalendarMgr.createReminderForRow(fr) {
+            // onCreate closure
+            (evOpt) in
+
+            thenDo(evOpt)
         }
     }
     

@@ -8,7 +8,7 @@
 
 import UIKit
 import MapKit
-import EventKit
+//import EventKit
 
 class ViewController: UIViewController {
     
@@ -34,39 +34,40 @@ class ViewController: UIViewController {
     var overlayHackStrokeBothsides = false
 
     lazy private var remindButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Reminder", withAction: {
-        // TODO: set reminder
-
+        [unowned self] in
         /*
          see rfc 2445
          */
 
         // use viewModel remindtarget
-        if let fr = self.viewModel.foundRow {
+        guard let lastRow = viewModel.lastSearchResult?.row else { return }
 
-            gCalendarMgr.createReminderForRow(fr) {
-                // onCreate closure
-                (evOpt) in
-                let a: UIAlertController
+        viewModel.createReminder(lastRow) {
+            [unowned self] (evOpt) in
+
+            let a: UIAlertController
+
+            if let ev = evOpt {
                 let adjustDate = DateFormatter()
                 adjustDate.dateFormat = "MM/dd"
 
-                if let ev = evOpt {
-                    let str = adjustDate.string(from: ev.startDate!)
-                    a = UIAlertController(title: "success", message: "event created on \(str)", preferredStyle: .alert)
-                }
-                else {
-                    a = UIAlertController(title: "success", message: "event creation failed\n(probably calendar permission settings)", preferredStyle: .alert)
-                }
-
-                let act = UIAlertAction(title: "OK", style: .default) { alerT in
-                    // dismiss
-                    a.dismiss(animated: true)
-                }
-                a.addAction(act)
-
-                self.present(a, animated: true)
+                let str = adjustDate.string(from: ev.startDate!)
+                a = UIAlertController(title: "success", message: "event created on \(str)", preferredStyle: .alert)
             }
+            else {
+                a = UIAlertController(title: "error", message: "event creation failed\n(probably calendar permission settings)", preferredStyle: .alert)
+            }
+
+            let act = UIAlertAction(title: "OK", style: .default) { alerT in
+                // dismiss
+                a.dismiss(animated: true)
+            }
+
+            a.addAction(act)
+
+            present(a, animated: true)
         }
+        
     })
 
     lazy private var recenterButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Re-center", withAction: {
@@ -110,7 +111,7 @@ class ViewController: UIViewController {
         controlsView.verticalListAdd(remindButton)
         controlsView.verticalListAdd(recenterButton)
 
-        controlsView.alpha = 0.75
+        controlsView.alpha = 0.90
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -184,51 +185,48 @@ extension ViewController: ViewModelDelegate {
     }
 
     private func renderRow(_ srow: RowStreetSweeping) {
-        if true
-        {
 
-            guard srow.line.count > 0 else {
-                //                print("sweep schedule search no row or empty-line row found")
-                return
+        guard srow.line.count > 0 else {
+            //                print("sweep schedule search no row or empty-line row found")
+            return
+        }
+
+        // remove previous drawing
+        if let removeOver = pathOverlay {
+            streetView.text = "???"
+            scheduleView.text = "???"
+            mapUI.removeOverlay(removeOver)
+        }
+
+        streetView.text = srow.streetText()
+        scheduleView.text = srow.scheduleText() //"\(srow.schedText) (\(srow.timeRemain)"
+
+        let polyline = srow.fullRouteCoordinates()
+
+        //overlayHackStrokeBothsides = srow.sideOppositeRow != nil // dumb coloring hack
+
+        pathOverlay = MKPolyline(coordinates: polyline, count: polyline.count)
+        pathOverlaySide = srow.side
+        mapUI.addOverlay(pathOverlay)
+
+        if let intCoord = viewModel.matchedIntercept {
+
+            if let prevOv = debugOverlay {
+                mapUI.removeOverlay(prevOv)
             }
+            debugOverlay = MKPolyline(coordinates: [intCoord, /*tailCoord*/ mapUI.centerCoordinate], count: 2)
+            mapUI.addOverlay(debugOverlay)
+        }
 
-            // remove previous drawing
-            if let removeOver = pathOverlay {
-                streetView.text = "???"
-                scheduleView.text = "???"
-                mapUI.removeOverlay(removeOver)
+        if let intEdge = viewModel.matchedEdge {
+
+            let c = [intEdge.0, intEdge.1]
+
+            if edgeOverlay != nil {
+                mapUI.removeOverlay(edgeOverlay)
             }
-
-            streetView.text = srow.streetText()
-            scheduleView.text = srow.scheduleText() //"\(srow.schedText) (\(srow.timeRemain)"
-
-            let polyline = srow.fullRouteCoordinates()
-
-            //overlayHackStrokeBothsides = srow.sideOppositeRow != nil // dumb coloring hack
-
-            pathOverlay = MKPolyline(coordinates: polyline, count: polyline.count)
-            pathOverlaySide = srow.side
-            mapUI.addOverlay(pathOverlay)
-
-            if let intCoord = viewModel.matchedIntercept {
-
-                if let prevOv = debugOverlay {
-                    mapUI.removeOverlay(prevOv)
-                }
-                debugOverlay = MKPolyline(coordinates: [intCoord, /*tailCoord*/ mapUI.centerCoordinate], count: 2)
-                mapUI.addOverlay(debugOverlay)
-            }
-
-            if let intEdge = viewModel.matchedEdge {
-
-                let c = [intEdge.0, intEdge.1]
-
-                if edgeOverlay != nil {
-                    mapUI.removeOverlay(edgeOverlay)
-                }
-                edgeOverlay = MKPolyline(coordinates:c , count: c.count)
-                mapUI.addOverlay(edgeOverlay)
-            }
+            edgeOverlay = MKPolyline(coordinates:c , count: c.count)
+            mapUI.addOverlay(edgeOverlay)
         }
     }
 
@@ -239,7 +237,9 @@ extension ViewController: ViewModelDelegate {
 
             let srow = srow!
             DispatchQueue.main.async {
-                renderRow(srow)
+
+
+                self.renderRow(srow)
             }
         }
 

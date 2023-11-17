@@ -35,10 +35,22 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>New item</key>
+			<string></string>
+			<key>m.media-amazon.com</key>
+			<string>media-amazon.com</string>
+		</dict>
+	</dict>
 	<key>NSCalendarsUsageDescription</key>
 	<string>managing street-cleaning and parking events</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Demonstration App</string>
+	<string>finding nearby parking information</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
