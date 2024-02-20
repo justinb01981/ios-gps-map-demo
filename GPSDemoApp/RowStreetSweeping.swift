@@ -284,7 +284,7 @@ extension RowStreetSweeping {
         // HACK: using a n extern singleton here
         let cal = gCalendarMgr.userCalendar
 
-        let p: Calendar.MatchingPolicy = .nextTime
+        let p: Calendar.MatchingPolicy = .strict
 
         var nextDateResult: Date! = .distantFuture
 
@@ -292,7 +292,7 @@ extension RowStreetSweeping {
 
             // TODO: use weekdayOrdinal
             if let tmp  =
-                cal.nextDate(after: Date(), matching: .init(timeZone: cal.timeZone, weekday: dayI+1),
+                cal.nextDate(after: Date(), matching: .init(timeZone: cal.timeZone, weekday: dayI+1, weekdayOrdinal: o),
                              matchingPolicy: p) {
 
                 // TODO: if week of month matches

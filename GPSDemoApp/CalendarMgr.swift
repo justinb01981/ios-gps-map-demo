@@ -42,7 +42,7 @@ class CalendarMgr {
         ev.startDate = dE //- 30.0
         ev.endDate = dE + DURATION  // duration hack
         ev.calendar = stor.defaultCalendarForNewEvents
-        ev.title = "Move car for street-cleaning @ \(row.name) (\(row.scheduleText())"
+        ev.title = "street-cleaning @ \(row.name) in 1 hour - move car?"
 
         // TODO: add location to event?
 //        ev.location = // location under the cursor?
