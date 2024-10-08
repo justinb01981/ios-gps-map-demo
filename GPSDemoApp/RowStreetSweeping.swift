@@ -6,6 +6,10 @@
 //  Copyright © 2023 Justin Brady. All rights reserved.
 //
 
+//example
+//7667000,Judah St,32nd Ave  -  33rd Ave,R,North,"Mon 1st, 3rd, 5th",Mon,7,8,1,0,1,0,1,0,1645938,"LINESTRING (-122.49092290915 37.761086890906, -122.491997472553 37.761039513834)"
+
+
 import Foundation
 import MapKit
 import SQLite
@@ -15,17 +19,9 @@ let TABLE_NAME = "street_sweeping_sf"
 let TableStreetSweeping = SQLite.Table(TABLE_NAME)
 let SELECT_QUERY = "SELECT Line FROM \(TABLE_NAME)"
 // MUST MATCH ENUM
-let selectBindings: [Expression<String>] = [Expression<String>("CNN"),
-                                            Expression<String>("BlockSweepID"),
-                                            Expression<String>("Line"),
-                                            Expression<String>("Corridor"),
-                                            Expression<String>("FullName"),
-                                            Expression<String>("WeekDay"),
-                                            Expression<String>("FromHour"),
-                                            Expression<String>("ToHour"),
-                                            Expression<String>("Week1"),Expression<String>("Week2"),
-                                            Expression<String>("Week3"),
-                                            Expression<String>("Week4"),Expression<String>("Week5"), Expression<String>("CNNRightLeft")
+let selectBindings = ["CNN",
+                      "BlockSweepID","Line","Corridor","FullName","WeekDay","FromHour","ToHour","Week1","Week2","Week3",
+                      "Week4","Week5", "CNNRightLeft"
 
                                             ]
 
@@ -172,9 +168,15 @@ class RowStreetSweeping: NSObject {
             // happens below
 
             // TODO: respect column names from csv - e.g.
-            // 7641000,Judah St,06th Ave  -  07th Ave,L,South,Wed 2nd & 4th,Wed,7,8,0,1,0,1,0,0,1638646,"LINESTRING (-122.462972001083 37.762315769364, -122.46404200546 37.762268848832)"
+            // 7667000,Judah St,32nd Ave  -  33rd Ave,R,North,"Mon 1st, 3rd, 5th",Mon,7,8,1,0,1,0,1,0,1645938,"LINESTRING (-122.49092290915 37.761086890906, -122.491997472553 37.761039513834)"
+
             cnn = Int(values[RowFields.CNN.rawValue])!
             name = String(values[RowFields.Corridor.rawValue])
+
+            if(cnn == 7667000)
+            {
+                print("found \(7667000)")
+            }
 
             // format here ex:
             // "Wed 2nd and 4th"
@@ -200,7 +202,7 @@ class RowStreetSweeping: NSObject {
             }
 
             if weekOfMonth.count == 0 {
-                weekOfMonth = [1, 2, 3, 4]
+                weekOfMonth = [1, 2, 3, 4, 5]
             }
             else {
                 print("cool: weekOfMonth = \(weekOfMonth)")

@@ -94,7 +94,6 @@ class ViewModel: NSObject {
 
             dlDelegate.downloadBegin {
 
-
                 [weak self] me, dataOpt in
 
                 print("\(dataOpt)")

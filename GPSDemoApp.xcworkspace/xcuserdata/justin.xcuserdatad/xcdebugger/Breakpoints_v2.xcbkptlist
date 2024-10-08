@@ -14,8 +14,8 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "259"
-            endingLineNumber = "259"
+            startingLineNumber = "261"
+            endingLineNumber = "261"
             landmarkName = "init?(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "356"
-            endingLineNumber = "356"
+            startingLineNumber = "358"
+            endingLineNumber = "358"
             landmarkName = "dotProduct(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "423"
-            endingLineNumber = "423"
+            startingLineNumber = "425"
+            endingLineNumber = "425"
             landmarkName = "intercept(_:_:_:)"
             landmarkType = "9">
          </BreakpointContent>
@@ -78,8 +78,8 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "392"
-            endingLineNumber = "392"
+            startingLineNumber = "394"
+            endingLineNumber = "394"
             landmarkName = "interceptSearch(near:)"
             landmarkType = "7">
             <Locations>
@@ -95,8 +95,7 @@
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "341"
-                  endingLineNumber = "341"
-                  offsetFromSymbolStart = "952">
+                  endingLineNumber = "341">
                </Location>
                <Location
                   uuid = "93FBE041-818C-46E6-9E6E-5EE2B1B1FCB2 - bcdf641b44f0120b"
@@ -110,8 +109,7 @@
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "340"
-                  endingLineNumber = "340"
-                  offsetFromSymbolStart = "952">
+                  endingLineNumber = "340">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -126,8 +124,8 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "237"
-            endingLineNumber = "237"
+            startingLineNumber = "239"
+            endingLineNumber = "239"
             landmarkName = "init?(_:)"
             landmarkType = "7">
             <Locations>
@@ -143,8 +141,7 @@
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "239"
-                  endingLineNumber = "239"
-                  offsetFromSymbolStart = "8132">
+                  endingLineNumber = "239">
                </Location>
                <Location
                   uuid = "37C8C9F4-66E0-4F45-B289-73E7E92F259A - 86a152e8aefbe496"
@@ -158,8 +155,7 @@
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "239"
-                  endingLineNumber = "239"
-                  offsetFromSymbolStart = "8548">
+                  endingLineNumber = "239">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -190,8 +186,8 @@
             filePath = "GPSDemoApp/DownloadDelegateBasic.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "44"
-            endingLineNumber = "44"
+            startingLineNumber = "46"
+            endingLineNumber = "46"
             landmarkName = "urlSession(_:downloadTask:didFinishDownloadingTo:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -206,8 +202,8 @@
             filePath = "GPSDemoApp/DownloadDelegateBasic.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "49"
-            endingLineNumber = "49"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
             landmarkName = "urlSession(_:didFailWithError:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -222,10 +218,26 @@
             filePath = "GPSDemoApp/RowStreetSweeping.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "272"
-            endingLineNumber = "272"
+            startingLineNumber = "274"
+            endingLineNumber = "274"
             landmarkName = "rowSchedFormat"
             landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E2D9A9E8-050B-4552-AE71-90B73FC4649B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "GPSDemoApp/ViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
+            landmarkName = "sweepScheduleSearch(_:then:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

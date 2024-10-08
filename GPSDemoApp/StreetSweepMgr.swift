@@ -64,7 +64,8 @@ class StreetSweepMgr: NSObject {
                 var values: [String] = []
 
                 for b in selectBindings {
-                    values += [try! nit.get(b)]
+                    let ex = Expression<String>(value:b)
+                    values += [try! nit.get(ex)]
                 } // for b
 
                 if let nrow = RowStreetSweeping(values) {

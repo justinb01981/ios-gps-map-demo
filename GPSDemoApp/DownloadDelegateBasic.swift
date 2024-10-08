@@ -24,6 +24,8 @@ class DownloadDelegateBasic : NSObject, DLDelegate {
         //let url = URL(string: "https://www.opencurb.nyc/search.php?coord=40.7630131962117,-73.9860065204115&v_type=PASSENGER&a_type=PARK&meter=0&radius=50&StartDate=2015-09-30&StartTime=06:25&EndDate=2015-09-30&EndTime=07:25&action_allowed=1")!
 
 
+        // TODO: find a real url since the above is dead
+        // see nyc open data: https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh
         let url = URL(string: "https://www.domain17.net/index.html")!
 
         let req =  URLRequest(url: url)

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -417,7 +417,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 90F22A705D9754BAA81B877A /* Pods-GPSDemoApp.debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZQVH66AQJ9;
 				INFOPLIST_FILE = GPSDemoApp/Info.plist;
@@ -436,7 +435,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 22846B7185D5FD2A31037B48 /* Pods-GPSDemoApp.release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZQVH66AQJ9;
 				INFOPLIST_FILE = GPSDemoApp/Info.plist;
