@@ -29,9 +29,9 @@ struct RowSearchResult {
 }
 
 class ViewModel: NSObject {
-    weak var delegate: ViewModelDelegate!
+    var delegate: ViewModelDelegate!
 
-     var dlDelegate: DLDelegate! = DownloadDelegateBasic()
+    var dlDelegate: DLDelegate! = DownloadDelegateBasic()
 
     static let kLocationLogKey = "loggedLocations"
 
@@ -90,16 +90,16 @@ class ViewModel: NSObject {
     func sweepScheduleSearch(_ loc: Coordinate, then doThisShit: @escaping (RowStreetSweeping?)->(Void)) {
         let loc = delegate.targetLocation()
 
-        if UserLicensing.shared.isLicensed(forLocation: loc) {
-
-            dlDelegate.downloadBegin {
-
-                [weak self] me, dataOpt in
-
-                print("\(dataOpt)")
-                //
-            }
-        }
+//        if UserLicensing.shared.isLicensed(forLocation: loc) {
+//
+//            dlDelegate.downloadBegin {
+//
+//                [weak self] me, dataOpt in
+//
+//                print("\(dataOpt)")
+//                //
+//            }
+//        }
 
         findSchedule(loc, then: {
             res in

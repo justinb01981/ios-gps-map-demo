@@ -123,6 +123,10 @@ class ViewController: UIViewController {
         pollCursor()
     }
 
+    func viewDidAppear() {
+        if viewModel.delegate == nil { fatalError() }
+    }
+
     @objc func clearLog() {
         LocationLog.shared.flush()
         mapUI.removeAnnotations(mapUI.annotations)
@@ -233,13 +237,11 @@ extension ViewController: ViewModelDelegate {
     func updateSchedule(_ tailCoord: Coordinate) {
 
         viewModel.sweepScheduleSearch(tailCoord) {
-            [unowned self] srow in
+            [weak self] srow in
 
             let srow = srow!
             DispatchQueue.main.async {
-
-
-                self.renderRow(srow)
+                self?.renderRow(srow)
             }
         }
 
@@ -265,9 +267,9 @@ extension ViewController: ViewModelDelegate {
 
 extension ViewController: MKMapViewDelegate {
 
-//    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-//      viewModel.refreshFromCursor()
-//    }
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        viewModel.refreshFromCursor()
+    }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let annotView = mapUI.dequeueReusableAnnotationView(withIdentifier: annotation.title!!)

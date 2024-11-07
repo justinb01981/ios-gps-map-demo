@@ -15,15 +15,31 @@ import MapKit
 import SQLite
 
 
+typealias SQExpression = SQLite.Expression
+
 let TABLE_NAME = "street_sweeping_sf"
 let TableStreetSweeping = SQLite.Table(TABLE_NAME)
-let SELECT_QUERY = "SELECT Line FROM \(TABLE_NAME)"
+//let SELECT_QUERY = "SELECT Line FROM \(TABLE_NAME)"
 // MUST MATCH ENUM
-let selectBindings = ["CNN",
-                      "BlockSweepID","Line","Corridor","FullName","WeekDay","FromHour","ToHour","Week1","Week2","Week3",
-                      "Week4","Week5", "CNNRightLeft"
+let selectBindings = [SQExpression<Int>("CNN"),
+                      SQExpression<String>("Corridor"),
+                      SQExpression<String>("Limits"),
+                      SQExpression<String>("CNNRightLeft"),
+                      SQExpression<String>("BlockSide"),
+                      SQExpression<String>("FullName"),
+                      SQExpression<String>("WeekDay"),
+                      SQExpression<Int>("FromHour"),
+                      SQExpression<Int>("ToHour"),
+                      SQExpression<Int>("Week1"),
+                      SQExpression<Int>("Week2"),
+                      SQExpression<Int>("Week3"),
+                      SQExpression<Int>("Week4"),
+                      SQExpression<Int>("Week5"),
+                      SQExpression<Int>("Holidays"),
+                      SQExpression<Int>("BlockSweepID"),
+                      SQExpression<String>("Line")
 
-                                            ]
+] as [Any]
 
 fileprivate let ICPTA: Int = -1
 fileprivate let ICPTB: Int = 0
@@ -94,25 +110,23 @@ enum RowFields: Int {
      */
 
     case CNN = 0
-    case BlockSweepID = 1
-    case Corridor = 3
-    case Limits = 4
-    case CNNRightLeft = 13
-//    case BlockSide
-//    case FullName = "corridorFullName"
-    case WeekDay = 5
-    case FromHour = 6
-    case ToHour = 7
-    case Week1 = 8
-    case Week2 = 9
-    case Week3 = 10
-    case Week4 = 11
-    case Week5 = 12
-//    case Holidays
+    case Corridor = 1
+    case Limits = 2
+    case CNNRightLeft = 3
+    case BlockSide = 4
+    case FullName = 5
+    case WeekDay = 6
+    case FromHour = 7
+    case ToHour = 8
+    case Week1 = 9
+    case Week2 = 10
+    case Week3 = 11
+    case Week4 = 12
+    case Week5 = 13
     case Holidays = 14
-
-    case Line = 2
-    case Last = 16
+    case BlockSweepID = 15
+    case Line = 16
+    case Last = 17
 }
 
 class RowStreetSweeping: NSObject {
@@ -139,8 +153,8 @@ class RowStreetSweeping: NSObject {
     var values: [String]
 
     init?(_ an: RowValues) {
-        guard an.count != RowFields.Last.rawValue else {
-            return nil
+        guard an.count == RowFields.Last.rawValue else {
+            fatalError()
         }
         
         values = an // moved outside hack
@@ -148,122 +162,118 @@ class RowStreetSweeping: NSObject {
         let lineVals = values[RowFields.Line.rawValue]
 
         // see https://www.ibm.com/docs/en/db2/11.1?topic=formats-well-known-text-wkt-representation
-        if lineVals.count > wktpfx.count {
+        line = []
 
-            line = []
+        // trim LINESTRING
+        let left = lineVals.index(lineVals.startIndex, offsetBy: (wktpfx.count))
+        let right = lineVals.index(lineVals.endIndex, offsetBy: -1)
+        let linev = lineVals[left..<right]
 
-            // trim LINESTRING
-            let left = lineVals.index(lineVals.startIndex, offsetBy: (wktpfx.count))
-            let right = lineVals.index(lineVals.endIndex, offsetBy: -1)
-            let linev = lineVals[left..<right]
+//            // "hehe. tokes
+        let tokes:[Coordinate] = linev.components(separatedBy: ", ").map( {
+            tok in
 
-            // "hehe. tokes
-            let tokes = linev.components(separatedBy: ", ").map {
-                let s = $0.components(separatedBy: " ")
-                assert(s.count == 2)
-
-                return Coordinate(    latitude: Double(s[1])!, longitude: Double(s[0])! )
+            let ab = tok.components(separatedBy:" ")
+            guard ab.count == 2, let lat = Double(ab[1]), let lng = Double(ab[0]) else {
+                fatalError()
             }
+            return Coordinate(latitude: lat, longitude: lng)
+        })
 
-            // happens below
+        // happens below
 
-            // TODO: respect column names from csv - e.g.
-            // 7667000,Judah St,32nd Ave  -  33rd Ave,R,North,"Mon 1st, 3rd, 5th",Mon,7,8,1,0,1,0,1,0,1645938,"LINESTRING (-122.49092290915 37.761086890906, -122.491997472553 37.761039513834)"
+        // TODO: respect column names from csv - e.g.
+        // 7667000,Judah St,32nd Ave  -  33rd Ave,R,North,"Mon 1st, 3rd, 5th",Mon,7,8,1,0,1,0,1,0,1645938,"LINESTRING (-122.49092290915 37.761086890906, -122.491997472553 37.761039513834)"
 
-            cnn = Int(values[RowFields.CNN.rawValue])!
-            name = String(values[RowFields.Corridor.rawValue])
+        cnn = Int(values[RowFields.CNN.rawValue])!
+        name = String(values[RowFields.Corridor.rawValue])
 
-            if(cnn == 7667000)
-            {
-                print("found \(7667000)")
-            }
+        if(cnn == 7667000)
+        {
+            print("found \(7667000)")
+        }
 
-            // format here ex:
-            // "Wed 2nd and 4th"
+        // format here ex:
+        // "Wed 2nd and 4th"
 
-            let dayName = String(values[RowFields.WeekDay.rawValue])
+        let dayName = String(values[RowFields.WeekDay.rawValue])
 
-            let fieldRaw = String(values[RowFields.Limits.rawValue])
+        let fieldRaw = String(values[RowFields.FullName.rawValue])
 
-            // don't forget to trim the commas ,
-            let fieldComp = fieldRaw.components(separatedBy: " ").map({ $0.trimmingCharacters(in: CharacterSet(charactersIn: ",")) })
-            if fieldComp.count > 1 {
-                print("fieldComp w/ord found: \(fieldComp)")
-            }
+        // don't forget to trim the commas ,
+        let fieldComp = fieldRaw.components(separatedBy: " ").map({ $0.trimmingCharacters(in: CharacterSet(charactersIn: ",")) })
+        if fieldComp.count > 1 {
+            print("fieldComp w/ord found: \(fieldComp)")
+        }
 
-            weekOfMonth = []    // construct this set from the schedule text
-            for ordMaybe in fieldComp {
-                if let x = ORDINALS.firstIndex(where: { $0 == ordMaybe }) {
-                    weekOfMonth += [x+1]    // weeks start at 1
-                }
-                else {
-                    print("WARN: ignoring weekOfMonth token: \(ordMaybe)")
-                }
-            }
-
-            if weekOfMonth.count == 0 {
-                weekOfMonth = [1, 2, 3, 4, 5]
+        weekOfMonth = []    // construct this set from the schedule text
+        for ordMaybe in fieldComp {
+            if let x = ORDINALS.firstIndex(where: { $0 == ordMaybe }) {
+                weekOfMonth += [x+1]    // weeks start at 1
             }
             else {
-                print("cool: weekOfMonth = \(weekOfMonth)")
+                print("WARN: ignoring weekOfMonth token: \(ordMaybe)")
             }
+        }
 
-            blockSweepId = Int(values[RowFields.BlockSweepID.rawValue])!
-            corridor = values[RowFields.Corridor.rawValue]
-            // ignore values2, limits
-            side = values[RowFields.CNNRightLeft.rawValue] == "R" ? .R : .L
-            schedText = values[RowFields.Limits.rawValue]
-
-            // from/to time-string parsing
-            guard let schedHourFrom = Int(values[RowFields.FromHour.rawValue]),
-                  let schedHourTo = Int(values[RowFields.ToHour.rawValue])
-            else {
-                fatalError("failed parsing FromHour / ToHour from \(values[RowFields.FromHour.rawValue])")
-            }
-            self.schedHourFrom = schedHourFrom
-            self.schedHourTo = schedHourTo
-
-            let dname = self.values[RowFields.Limits.rawValue].components(separatedBy: " ").first!
-
-            if dname.lowercased() == "holiday" {
-                //dname = "Sunday" // TODO: FIX THIS once I'm sane again
-                print("WARN: ignoring Holiday csv rows!")
-                return nil
-            }
-
-            dayI = 0
-            if let i = THEWEEK.firstIndex(where: { $0.contains(dname.lowercased()) }) {
-                dayI = i
-            }
-
-            lineLength = 0
-            for idx in 0..<tokes.count {
-
-                let vtxn = tokes[idx]
-                let rise = vtxn.latitude / vtxn.longitude
-                let la = rise * (  side == .R ? (MINRUN) : (-MINRUN)  )
-                //* (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
-                let lo = la  
-                // * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
-                let vtx = [Coordinate(latitude: vtxn.latitude   + la,
-                                                  longitude: vtxn.longitude + lo)  ]
-
-                // HACK: tweak coordinates lat/long slightly so the rows for r/l are distinct and can be highlighted on the map
-                self.line += vtx
-
-                if idx > 0 {
-                    lineLength += dist2(line[idx+ICPTA].latitude, line[idx+ICPTA].longitude, line[idx+ICPTB].latitude, line[idx+ICPTB].longitude)
-                    // calculating full length
-                }
-            }
+        if weekOfMonth.count == 0 {
+            weekOfMonth = [1, 2, 3, 4, 5]
         }
         else {
-            print("ignoring empty line: \(values)")
+            print("cool: weekOfMonth = \(weekOfMonth)")
+        }
+
+        blockSweepId = Int(values[RowFields.BlockSweepID.rawValue])!
+        corridor = values[RowFields.Corridor.rawValue]
+        // ignore values2, limits
+        side = values[RowFields.CNNRightLeft.rawValue] == "R" ? .R : .L
+        schedText = values[RowFields.FullName.rawValue]
+
+        // from/to time-string parsing
+        guard let schedHourFrom = Int(values[RowFields.FromHour.rawValue]),
+              let schedHourTo = Int(values[RowFields.ToHour.rawValue])
+        else {
+            fatalError("failed parsing FromHour / ToHour from \(values[RowFields.FromHour.rawValue])")
+        }
+        self.schedHourFrom = schedHourFrom
+        self.schedHourTo = schedHourTo
+
+        let dname = self.values[RowFields.FullName.rawValue].components(separatedBy: " ").first!
+
+        if dname.lowercased() == "holiday" {
+            //dname = "Sunday" // TODO: FIX THIS once I'm sane again
+            print("WARN: ignoring Holiday csv rows!")
             return nil
         }
+
+        dayI = 0
+        if let i = THEWEEK.firstIndex(where: { $0.contains(dname.lowercased()) }) {
+            dayI = i
+        }
+
+        //print("line: \(tokes)")
+
+        lineLength = 0
+        for idx in 0..<tokes.count {
+
+            let vtxn = tokes[idx]
+            let rise = vtxn.latitude / vtxn.longitude
+            let la = rise * (  side == .R ? (MINRUN) : (-MINRUN)  ) * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
+            let lo = la * (side == .L ? LEFTRIGHT_BIAS : -LEFTRIGHT_BIAS)
+            let vtx = [Coordinate(latitude: vtxn.latitude   + la,
+                                              longitude: vtxn.longitude + lo)  ]
+
+            // HACK: tweak coordinates lat/long slightly so the rows for r/l are distinct and can be highlighted on the map
+            self.line += vtx
+
+            if idx > 0 {
+                lineLength += dist2(line[idx+ICPTA].latitude, line[idx+ICPTA].longitude, line[idx+ICPTB].latitude, line[idx+ICPTB].longitude)
+                // calculating full length
+            }
+
+        }
+
     }
-
-
 
     static let rowSchedFormat: (RowStreetSweeping)->(String) = { s in
 
@@ -286,7 +296,7 @@ extension RowStreetSweeping {
         // HACK: using a n extern singleton here
         let cal = gCalendarMgr.userCalendar
 
-        let p: Calendar.MatchingPolicy = .strict
+        let p: Calendar.MatchingPolicy = .nextTime
 
         var nextDateResult: Date! = .distantFuture
 
@@ -301,6 +311,9 @@ extension RowStreetSweeping {
 
                 if abs(nextDateResult.timeIntervalSinceNow) > abs(tmp.timeIntervalSinceNow) {
                     nextDateResult = tmp
+                }
+                else {
+                    print("timeExpireOnLocal \(tmp) result ignored")
                 }
             }
         }

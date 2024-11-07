@@ -6,7 +6,7 @@
 //  Copyright © 2023 Justin Brady. All rights reserved.
 //
 
-import Foundation
+//import Foundation
 import UIKit
 import CoreLocation
 import SQLite
@@ -58,22 +58,51 @@ class StreetSweepMgr: NSObject {
         do {
             let db = try Connection("\(path)")
             let schedule = Table(TABLE_NAME)
-            let it = try! db.prepare(schedule.select(selectBindings)).makeIterator()
+            let it = try! db.prepare(schedule.select(selectBindings as! [any Expressible])).makeIterator()
 
             while let nit = it.next() {
+
                 var values: [String] = []
+                var ignored = false
 
-                for b in selectBindings {
-                    let ex = Expression<String>(value:b)
-                    values += [try! nit.get(ex)]
-                } // for b
+                selectBindings.forEach {
+                    ex in
 
-                if let nrow = RowStreetSweeping(values) {
+
+                    do {
+                        if let ex = ex as? SQLite.Expression<String> {
+                            let val = try nit.get(ex)
+
+                            values += [ val ]
+                        }
+                        else if let ex = ex as? SQLite.Expression<Int> {
+                            let val = try nit.get(ex)
+
+                            values += [ String(val) ]
+                        }
+
+                    }
+                    catch let ex {
+                        print("sql exception: \(ex)")
+
+                        ignored = true
+                    }
+
+                }
+
+                if !ignored, values.count > 0,
+                    let nrow = RowStreetSweeping(values) {
 
                     indexedByCenterline[nrow.name, default: []] += [nrow]
                     indexedByCenterline[nrow.name] = indexedByCenterline[nrow.name]?.sorted(by: { $0.cnn < $1.cnn })
                     rows += [nrow]
+
+                    print("OK: added row \(nrow)")
+                    
                     // will be added to rows after indexing
+                }
+                else {
+                    //fatalError()
                 }
             }// while
         }
