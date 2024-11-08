@@ -343,7 +343,6 @@ extension RowStreetSweeping {
         }
 
         selectedRows = selectedRows.sorted(by: { $0.cnn < $1.cnn })
-
         selectedRows.forEach({ result += $0.line })
         
         return result
@@ -434,8 +433,8 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
 
     // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
 
-    let u = AClng / rise
-    let v = u * rise
+    let u = (AClng / rise + AClat) / 2
+    let v = ((u * rise))
 
 //    print("""
 //    rise=\(rise)
