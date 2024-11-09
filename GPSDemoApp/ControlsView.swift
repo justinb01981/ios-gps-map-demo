@@ -28,12 +28,15 @@ class ControlsView: UIView {
 
     func verticalListAdd(_ view: BaseControlWithLabel) {
         topToBottom += [view]
-        var top = 0.0
-        if let topSub = subviews.sorted(by: { $0.frame.maxY < $1.frame.maxY }).first {
+        var top = 0.0, bot = 0.0
+        let sortedV = subviews.sorted(by: { $0.frame.maxY < $1.frame.maxY }).first
+        if let topSub = sortedV {
             top = topSub.frame.maxY
+            bot = topSub.frame.minY
         }
 
-        view.frame = CGRect(x: 0, y: top, width: view.frame.width, height: view.frame.height)
+
+        view.frame = CGRect(x: 0, y: top, width: view.frame.width, height: top - bot)
 
         addSubview(view)
     }

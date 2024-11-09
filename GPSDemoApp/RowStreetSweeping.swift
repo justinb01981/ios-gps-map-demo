@@ -379,7 +379,7 @@ extension RowStreetSweeping {
     // TODO: unit vectors
 
     // update weights of all rows based on cursor
-    func interceptSearch(near coord: Coordinate) -> (RowStreetSweeping, Edge, Coordinate, Double) {
+    func interceptSearch(near coord: Coordinate, with direction:StreetSide!) -> (RowStreetSweeping, Edge, Coordinate, Double) {
 
         var dResult: Double = .infinity
         var icptR: Coordinate = .init(.infinity, .infinity)
@@ -395,11 +395,17 @@ extension RowStreetSweeping {
             let Dedge = dist2(a.latitude, a.longitude, b.latitude, b.longitude)
 
             // respect direction - depending on which side of the line
+            // OR override direction passed in
 
-            let direction: StreetSide = (intercep.latitude - coord.latitude) / (b.latitude - a.latitude) > 0 ? .L : .R
+            let directionNat: StreetSide = (intercep.latitude - coord.latitude) / (b.latitude - a.latitude) > 0 ? .L : .R
+            var edirection = directionNat
+
+            if let fdirection = direction {
+                edirection  = fdirection
+            }
 
             // if D is > segment length forget it
-            if direction == side &&
+            if edirection == side &&
                 D < Dedge &&   // NO - test range of each line segment
                 D < dResult {  // lineLength fudge ?
 
@@ -417,11 +423,12 @@ extension RowStreetSweeping {
 func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate {
 
     // find intersection where y = Mx + b, a being the origin
+    // ABx / y
     let ABlat = (b.latitude-a.latitude)
     let ABlng = (b.longitude-a.longitude)
 
     // if rise is slope lat/lng
-    let rise = ABlng / ABlat
+    let S = ABlng / ABlat    // 15 / 30 = 0.5
 
     // U = lat
     // V = lng
@@ -433,8 +440,9 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
 
     // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
 
-    let u = (AClng / rise + AClat) / 2
-    let v = ((u * rise))
+    //let u = (AClng / rise + AClat) / 2
+    let v = AClat*S - AClng
+    let u = (v)*(-S)
 
 //    print("""
 //    rise=\(rise)
@@ -442,5 +450,5 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
 //    u=\(u)
 //    """)
 
-    return Coordinate(a.latitude+u, a.longitude+v)
+    return Coordinate(c.latitude+u, c.longitude+v)
 }

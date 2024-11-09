@@ -113,6 +113,20 @@ class ViewModel: NSObject {
         })
     }
 
+    var streetSide: StreetSide?
+
+    func swapStreetSide( then doThis: @escaping ((RowSearchResult)?)->(Void)) {
+        // if schedule contains opposite side switch to that
+//        guard let opp = lastSearchResult.row.sideOppositeRow else {
+//            return
+//        }
+//
+//        lastSearchResult = RowSearchResult(edge: lastSearchResult.edge, interceptCoordinate: lastSearchResult.interceptCoordinate, row: opp, product: lastSearchResult.product)
+//        doThis(lastSearchResult)
+        streetSide = streetSide == .R ? .L : .R
+
+    }
+
     private func searchInternal(_ coord: CLLocationCoordinate2D, then doThis: @escaping ((RowSearchResult)?)->(Void)) {
 
         var dResult = Double.infinity
@@ -122,7 +136,7 @@ class ViewModel: NSObject {
         for row in StreetSweepMgr.shared.rows {
 
             // NOTE: somehwere remember that intercept search will exclude where the point falls outside the segment
-            let rpair = row.interceptSearch(near: coord)
+            let rpair = row.interceptSearch(near: coord, with: streetSide)
 
             // TODO: this should move to the row type not in viewmodel
             let searchR = RowSearchResult(edge: rpair.1, interceptCoordinate: rpair.2, row: rpair.0, product: rpair.3)

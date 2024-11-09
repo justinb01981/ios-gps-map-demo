@@ -77,6 +77,14 @@ class ViewController: UIViewController {
         self.centeredAtStart = false
     })
 
+    lazy private var swapButton: BaseControlWithLabel = ButtonViewWithLabel(named: "swap left/right") {
+
+        self.viewModel.swapStreetSide(then: {
+            print("\($0)")
+            self.viewModel.refreshFromCursor()
+        })
+    }
+
     var r: UITapGestureRecognizer!
 
     override func viewDidLoad() {
@@ -99,9 +107,7 @@ class ViewController: UIViewController {
             view.topAnchor.constraint(equalTo: mapUI.topAnchor),
             view.bottomAnchor.constraint(equalTo: mapUI.bottomAnchor),
             view.leadingAnchor.constraint(equalTo: mapUI.leadingAnchor),
-            view.trailingAnchor.constraint(equalTo: mapUI.trailingAnchor),
-            view.bottomAnchor.constraint(equalTo: controlsView.bottomAnchor),
-            controlsView.heightAnchor.constraint(equalToConstant: streetView.height + scheduleView.height + pad)
+            view.trailingAnchor.constraint(equalTo: mapUI.trailingAnchor)
         ])
 
         // controlsView
@@ -110,6 +116,7 @@ class ViewController: UIViewController {
         controlsView.verticalListAdd(scheduleView)
         controlsView.verticalListAdd(remindButton)
         controlsView.verticalListAdd(recenterButton)
+        controlsView.verticalListAdd(swapButton)
 
         controlsView.alpha = 0.90
     }

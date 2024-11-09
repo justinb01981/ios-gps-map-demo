@@ -77,7 +77,6 @@ class TextViewWithLabel: UIView, BaseControlWithLabel {
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16.0),
             label.topAnchor.constraint(equalTo: topAnchor),
             label.bottomAnchor.constraint(equalTo: bottomAnchor),
-            //heightAnchor.constraint(equalToConstant: 64)
         ])
     }
     
