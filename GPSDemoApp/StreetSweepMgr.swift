@@ -12,6 +12,7 @@ import CoreLocation
 import SQLite
 
 fileprivate let city = "sf"
+fileprivate let CNN_SEARCH = "13168101"
 
 class StreetSweepMgr: NSObject {
 
@@ -90,7 +91,7 @@ class StreetSweepMgr: NSObject {
 
                 }
 
-                if !ignored, values.count > 0,
+                if !ignored, values.count > 0,// CNN_SEARCH == values[0],
                     let nrow = RowStreetSweeping(values) {
 
                     indexedByCenterline[nrow.name, default: []] += [nrow]

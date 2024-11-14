@@ -334,7 +334,7 @@ extension RowStreetSweeping {
 
         for rowS in hackGlobalSingleton.rows {
             // find contiguous coordinates
-            if //rowS.cnn == row.cnn
+            if /* rowS.cnn == row.cnn && */
                 rowS.corridor == row.corridor
                 && rowS.side == row.side
             {
@@ -441,8 +441,8 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
     // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
 
     //let u = (AClng / rise + AClat) / 2
-    let v = AClat*S - AClng
-    let u = (v)*(-S)
+    let v = ( AClng - AClat*S )
+    let u =  v / (S) + AClat
 
 //    print("""
 //    rise=\(rise)
@@ -450,5 +450,5 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
 //    u=\(u)
 //    """)
 
-    return Coordinate(c.latitude+u, c.longitude+v)
+    return Coordinate(a.latitude+u, a.longitude+v)
 }
