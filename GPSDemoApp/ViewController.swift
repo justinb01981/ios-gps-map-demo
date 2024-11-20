@@ -50,9 +50,10 @@ class ViewController: UIViewController {
             if let ev = evOpt {
                 let adjustDate = DateFormatter()
                 adjustDate.dateFormat = "MM/dd"
+                let adjustDate24h = DateFormatter()
+                adjustDate24h.dateFormat = "hh:mm"
 
-                let str = adjustDate.string(from: ev.startDate!)
-                a = UIAlertController(title: "success", message: "event created on \(str)", preferredStyle: .alert)
+                a = UIAlertController(title: "success", message: "event created on \(adjustDate.string(from: ev.startDate!)) at \(adjustDate24h.string(from: ev.startDate!))", preferredStyle: .alert)
             }
             else {
                 a = UIAlertController(title: "error", message: "event creation failed\n(probably calendar permission settings)", preferredStyle: .alert)
@@ -81,7 +82,8 @@ class ViewController: UIViewController {
 
         self.viewModel.swapStreetSide(then: {
             print("\($0)")
-            self.viewModel.refreshFromCursor()
+            //self.viewModel.refreshFromCursor()
+            self.renderRow(self.viewModel.lastSearchResult.row)
         })
     }
 
@@ -101,7 +103,7 @@ class ViewController: UIViewController {
         DotAnnotationView.registerWithMap(mapUI)
         CursorAnnotationView.registerWithMap(mapUI)
 
-        view.addSubview(mapUI)
+        view.insertSubview(mapUI, at: 3)
         view.addSubview(controlsView)
         view.addConstraints([
             view.topAnchor.constraint(equalTo: mapUI.topAnchor),

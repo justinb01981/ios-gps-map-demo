@@ -318,8 +318,6 @@ extension RowStreetSweeping {
             }
         }
 
-        print("\(self) timeExpireOnLocal(): \(nextDateResult)")
-
         return nextDateResult.advanced(by: Double(schedHourFrom) * 3600.0)
     }
 }
@@ -334,7 +332,7 @@ extension RowStreetSweeping {
 
         for rowS in hackGlobalSingleton.rows {
             // find contiguous coordinates
-            if /* rowS.cnn == row.cnn && */
+            if  //rowS.cnn == row.cnn &&
                 rowS.corridor == row.corridor
                 && rowS.side == row.side
             {
@@ -391,13 +389,19 @@ extension RowStreetSweeping {
             let b = line[i+ICPTB]
 
             let intercep = intercept(coord, a, b)
-            let D = dist2(a.latitude, a.longitude, coord.latitude, coord.longitude)
             let Dedge = dist2(a.latitude, a.longitude, b.latitude, b.longitude)
+            let Ae = dist2(a.latitude, a.longitude, coord.latitude, coord.longitude)
+            let Be = dist2(b.latitude, b.longitude, coord.latitude, coord.longitude)
+
+            //
+            let D = Ae > Be ? Ae : Be
+
+//            let D = dist2(a.latitude, a.longitude, coord.latitude, coord.longitude)
 
             // respect direction - depending on which side of the line
             // OR override direction passed in
 
-            let directionNat: StreetSide = (intercep.latitude - coord.latitude) / (b.latitude - a.latitude) > 0 ? .L : .R
+            let directionNat: StreetSide = (intercep.latitude - coord.latitude) / (b.latitude - a.latitude) > 0 ? .L : .R   // yes i tested this
             var edirection = directionNat
 
             if let fdirection = direction {
@@ -441,8 +445,8 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
     // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
 
     //let u = (AClng / rise + AClat) / 2
-    let v = ( AClng - AClat*S )
-    let u =  v / (S) + AClat
+    let v = ( AClng - AClat*S ) / 2.0
+    let u =  AClat + v/S //v / (S)
 
 //    print("""
 //    rise=\(rise)

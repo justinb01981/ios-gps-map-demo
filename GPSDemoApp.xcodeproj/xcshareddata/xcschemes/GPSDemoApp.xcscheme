@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D0D2BD3425F2EF2A009B8BDF"
-               BuildableName = "GPSDemoApp.app"
-               BlueprintName = "GPSDemoApp"
+               BuildableName = "Streetminderzzz SF.app"
+               BlueprintName = "Streetminderzzz SF"
                ReferencedContainer = "container:GPSDemoApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -58,8 +58,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D0D2BD3425F2EF2A009B8BDF"
-            BuildableName = "GPSDemoApp.app"
-            BlueprintName = "GPSDemoApp"
+            BuildableName = "Streetminderzzz SF.app"
+            BlueprintName = "Streetminderzzz SF"
             ReferencedContainer = "container:GPSDemoApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -75,8 +75,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D0D2BD3425F2EF2A009B8BDF"
-            BuildableName = "GPSDemoApp.app"
-            BlueprintName = "GPSDemoApp"
+            BuildableName = "Streetminderzzz SF.app"
+            BlueprintName = "Streetminderzzz SF"
             ReferencedContainer = "container:GPSDemoApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

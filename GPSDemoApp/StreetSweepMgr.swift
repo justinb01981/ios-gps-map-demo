@@ -17,7 +17,7 @@ fileprivate let CNN_SEARCH = "13168101"
 class StreetSweepMgr: NSObject {
 
     var rows: [RowStreetSweeping] = []
-    var indexedByCenterline: [String: [RowStreetSweeping]] = [:]
+    var indexedByCenterline: [Int: [RowStreetSweeping]] = [:]
     var city: String
     var inputstream: InputStream!
 
@@ -94,12 +94,12 @@ class StreetSweepMgr: NSObject {
                 if !ignored, values.count > 0,// CNN_SEARCH == values[0],
                     let nrow = RowStreetSweeping(values) {
 
-                    indexedByCenterline[nrow.name, default: []] += [nrow]
-                    indexedByCenterline[nrow.name] = indexedByCenterline[nrow.name]?.sorted(by: { $0.cnn < $1.cnn })
+                    indexedByCenterline[nrow.cnn, default: []] += [nrow]
+                    indexedByCenterline[nrow.cnn] = indexedByCenterline[nrow.cnn]?.sorted(by: { $0.cnn < $1.cnn })
                     rows += [nrow]
 
                     print("OK: added row \(nrow)")
-                    
+
                     // will be added to rows after indexing
                 }
                 else {
@@ -117,7 +117,7 @@ class StreetSweepMgr: NSObject {
             if sibling.sideOppositeRow != nil { continue }
 
             // link
-            sibling.sideOppositeRow = indexedByCenterline[sibling.name]?.first(where: { $0 != sibling })
+            sibling.sideOppositeRow = indexedByCenterline[sibling.cnn]?.first(where: { $0 != sibling && $0.side != sibling.side })
             sibling.sideOppositeRow?.sideOppositeRow = sibling
         }
     }

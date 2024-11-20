@@ -54,7 +54,7 @@
 		D07471C32A3DAEF500B20AD1 /* RowStreetSweeping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowStreetSweeping.swift; sourceTree = "<group>"; };
 		D07471C52A3E253F00B20AD1 /* sweep_schedule_sf.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = sweep_schedule_sf.db; sourceTree = SOURCE_ROOT; };
 		D0AF1DA82A6F2C6000D0FAE5 /* vectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = vectors.swift; sourceTree = "<group>"; };
-		D0D2BD3525F2EF2A009B8BDF /* GPSDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPSDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0D2BD3525F2EF2A009B8BDF /* Streetminderzzz SF.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Streetminderzzz SF.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D2BD3825F2EF2A009B8BDF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0D2BD3A25F2EF2A009B8BDF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		D0D2BD3C25F2EF2A009B8BDF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -111,7 +111,7 @@
 		D0D2BD3625F2EF2A009B8BDF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D0D2BD3525F2EF2A009B8BDF /* GPSDemoApp.app */,
+				D0D2BD3525F2EF2A009B8BDF /* Streetminderzzz SF.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -150,9 +150,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D0D2BD3425F2EF2A009B8BDF /* GPSDemoApp */ = {
+		D0D2BD3425F2EF2A009B8BDF /* Streetminderzzz SF */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D0D2BD4925F2EF2B009B8BDF /* Build configuration list for PBXNativeTarget "GPSDemoApp" */;
+			buildConfigurationList = D0D2BD4925F2EF2B009B8BDF /* Build configuration list for PBXNativeTarget "Streetminderzzz SF" */;
 			buildPhases = (
 				7F7095A38A611A05CF83DEB5 /* [CP] Check Pods Manifest.lock */,
 				D0D2BD3125F2EF2A009B8BDF /* Sources */,
@@ -164,9 +164,9 @@
 			);
 			dependencies = (
 			);
-			name = GPSDemoApp;
+			name = "Streetminderzzz SF";
 			productName = GPSDemoApp;
-			productReference = D0D2BD3525F2EF2A009B8BDF /* GPSDemoApp.app */;
+			productReference = D0D2BD3525F2EF2A009B8BDF /* Streetminderzzz SF.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -198,7 +198,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D0D2BD3425F2EF2A009B8BDF /* GPSDemoApp */,
+				D0D2BD3425F2EF2A009B8BDF /* Streetminderzzz SF */,
 			);
 		};
 /* End PBXProject section */
@@ -304,6 +304,7 @@
 		D0D2BD4725F2EF2B009B8BDF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -357,12 +358,14 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		D0D2BD4825F2EF2B009B8BDF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -409,6 +412,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -418,15 +422,17 @@
 			baseConfigurationReference = 90F22A705D9754BAA81B877A /* Pods-GPSDemoApp.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZQVH66AQJ9;
 				INFOPLIST_FILE = GPSDemoApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.domain17.GPSDemoApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -436,15 +442,17 @@
 			baseConfigurationReference = 22846B7185D5FD2A31037B48 /* Pods-GPSDemoApp.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZQVH66AQJ9;
 				INFOPLIST_FILE = GPSDemoApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.domain17.GPSDemoApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -461,7 +469,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D0D2BD4925F2EF2B009B8BDF /* Build configuration list for PBXNativeTarget "GPSDemoApp" */ = {
+		D0D2BD4925F2EF2B009B8BDF /* Build configuration list for PBXNativeTarget "Streetminderzzz SF" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D0D2BD4A25F2EF2B009B8BDF /* Debug */,

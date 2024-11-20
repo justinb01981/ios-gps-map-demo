@@ -117,13 +117,12 @@ class ViewModel: NSObject {
 
     func swapStreetSide( then doThis: @escaping ((RowSearchResult)?)->(Void)) {
         // if schedule contains opposite side switch to that
-//        guard let opp = lastSearchResult.row.sideOppositeRow else {
-//            return
-//        }
-//
-//        lastSearchResult = RowSearchResult(edge: lastSearchResult.edge, interceptCoordinate: lastSearchResult.interceptCoordinate, row: opp, product: lastSearchResult.product)
-//        doThis(lastSearchResult)
-        streetSide = streetSide == .R ? .L : .R
+        guard let opp = lastSearchResult.row.sideOppositeRow else {
+            return
+        }
+
+        lastSearchResult = RowSearchResult(edge: lastSearchResult.edge, interceptCoordinate: lastSearchResult.interceptCoordinate, row: opp, product: lastSearchResult.product)
+        doThis(lastSearchResult)
 
     }
 
