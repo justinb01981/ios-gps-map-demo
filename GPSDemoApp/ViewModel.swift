@@ -130,6 +130,7 @@ class ViewModel: NSObject {
 
         var dResult = Double.infinity
         var rowResult: RowSearchResult! = nil
+        var nextEvent: Date = Date.distantFuture
 
         // SEARCH ALL ROWS
         for row in StreetSweepMgr.shared.rows {
@@ -138,16 +139,20 @@ class ViewModel: NSObject {
             let rpair = row.interceptSearch(near: coord, with: streetSide)
 
             // TODO: this should move to the row type not in viewmodel
+
             let searchR = RowSearchResult(edge: rpair.1, interceptCoordinate: rpair.2, row: rpair.0, product: rpair.3)
-            let rEdge = searchR.edge
-            let int = searchR.interceptCoordinate
+//            let rEdge = searchR.edge
+//            let int = searchR.interceptCoordinate
 
             if searchR.product < dResult
+//                && searchR.row.timeExpireOnLocal() <= nextEvent
             {
                 // TODO: remember to set matchedEdge+matchedIntercept once final resultl found
                 rowResult = searchR
 
                 dResult = searchR.product
+
+                nextEvent = searchR.row.timeExpireOnLocal()
 
                 print("prefering nearer result: \(rowResult.row.name)(\(dResult))")
             }

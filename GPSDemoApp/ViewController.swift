@@ -246,11 +246,11 @@ extension ViewController: ViewModelDelegate {
     func updateSchedule(_ tailCoord: Coordinate) {
 
         viewModel.sweepScheduleSearch(tailCoord) {
-            [weak self] srow in
+            [unowned self] srow in
 
             let srow = srow!
             DispatchQueue.main.async {
-                self?.renderRow(srow)
+                self.renderRow(srow)
             }
         }
 

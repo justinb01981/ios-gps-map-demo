@@ -169,7 +169,7 @@ class RowStreetSweeping: NSObject {
         let right = lineVals.index(lineVals.endIndex, offsetBy: -1)
         let linev = lineVals[left..<right]
 
-//            // "hehe. tokes
+        // "hehe. tokes
         let tokes:[Coordinate] = linev.components(separatedBy: ", ").map( {
             tok in
 
@@ -312,9 +312,9 @@ extension RowStreetSweeping {
                 if abs(nextDateResult.timeIntervalSinceNow) > abs(tmp.timeIntervalSinceNow) {
                     nextDateResult = tmp
                 }
-                else {
-                    print("timeExpireOnLocal \(tmp) result ignored")
-                }
+//                else {
+//                    print("timeExpireOnLocal \(tmp) result ignored")
+//                }
             }
         }
 
@@ -393,14 +393,11 @@ extension RowStreetSweeping {
             let Ae = dist2(a.latitude, a.longitude, coord.latitude, coord.longitude)
             let Be = dist2(b.latitude, b.longitude, coord.latitude, coord.longitude)
 
-            //
-            let D = Ae > Be ? Ae : Be
-
-//            let D = dist2(a.latitude, a.longitude, coord.latitude, coord.longitude)
+            let D = dist2(coord.latitude, coord.longitude, intercep.latitude, intercep.longitude)  // distance from cursor coord to intercept?
+//            let D = Ae > Be ? Ae : Be   // distance to A or B
 
             // respect direction - depending on which side of the line
             // OR override direction passed in
-
             let directionNat: StreetSide = (intercep.latitude - coord.latitude) / (b.latitude - a.latitude) > 0 ? .L : .R   // yes i tested this
             var edirection = directionNat
 
@@ -409,13 +406,16 @@ extension RowStreetSweeping {
             }
 
             // if D is > segment length forget it
-            if edirection == side &&
+            if
+                edirection == side &&
                 D < Dedge &&   // NO - test range of each line segment
-                D < dResult {  // lineLength fudge ?
+                D < dResult
+            {  // lineLength fudge ?
 
                 icptR = intercep
                 eResult = (b, a)
                 dResult = D
+                print("result \(name) len: \(dResult)")
             }
         }
 
@@ -431,8 +431,7 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
     let ABlat = (b.latitude-a.latitude)
     let ABlng = (b.longitude-a.longitude)
 
-    // if rise is slope lat/lng
-    let S = ABlng / ABlat    // 15 / 30 = 0.5
+    let S = ABlat / ABlng
 
     // U = lat
     // V = lng
@@ -443,11 +442,8 @@ func intercept(_ c: Coordinate, _ a: Coordinate, _ b: Coordinate) -> Coordinate 
     let BClng = (c.longitude-b.longitude)
 
     // use lat for lng cmponent of intercept (walk along X, then from there walk along Y
-
-    //let u = (AClng / rise + AClat) / 2
-    let v = ( AClng - AClat*S ) / 2.0
-    let u =  AClat + v/S //v / (S)
-
+    let u = AClng*(S) + AClat
+    let v = (u) / (S)
 //    print("""
 //    rise=\(rise)
 //    v=\(v)
