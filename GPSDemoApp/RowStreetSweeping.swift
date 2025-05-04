@@ -323,31 +323,6 @@ extension RowStreetSweeping {
 }
 
 extension RowStreetSweeping {
-    func fullRouteCoordinates() -> [Coordinate] {
-        let row = self
-        var result: [Coordinate] = []
-        var selectedRows: [RowStreetSweeping] = []
-
-        let hackGlobalSingleton = StreetSweepMgr.shared
-
-        for rowS in hackGlobalSingleton.rows {
-            // find contiguous coordinates
-            if  //rowS.cnn == row.cnn &&
-                rowS.corridor == row.corridor
-                && rowS.side == row.side
-            {
-                selectedRows += [rowS]
-            }
-        }
-
-        selectedRows = selectedRows.sorted(by: { $0.cnn < $1.cnn })
-        selectedRows.forEach({ result += $0.line })
-        
-        return result
-    }
-}
-
-extension RowStreetSweeping {
 
     func scheduleText() -> String {
         return RowStreetSweeping.scheduleFormat(self)
@@ -368,18 +343,11 @@ extension RowStreetSweeping {
         return max
     }
 
-    func distanceToVertex(_ coord: Coordinate) -> Double {
-        // return distance to nearest vertex
-        return self.line.map( { dist2($0.latitude, $0.longitude, coord.latitude, coord.longitude) }).min()!
-    }
 
-    // TODO: minimal intercept for this row edges.. split out the math maybe
-    // TODO: unit vectors
-
-    // update weights of all rows based on cursor
     func interceptSearch(near coord: Coordinate, with direction:StreetSide!) -> (RowStreetSweeping, Edge, Coordinate, Double) {
+        //TODO: update weights of all rows based on cursor - make search asynchronous
 
-        var dResult: Double = .infinity
+        var dMin: Double = .infinity
         var icptR: Coordinate = .init(.infinity, .infinity)
         var eResult: Edge = (icptR, icptR)
 
@@ -387,39 +355,29 @@ extension RowStreetSweeping {
 
             let a = line[i+ICPTA]
             let b = line[i+ICPTB]
-
             let intercep = intercept(coord, a, b)
-            let Dedge = dist2(a.latitude, a.longitude, b.latitude, b.longitude)
-            let Ae = dist2(a.latitude, a.longitude, coord.latitude, coord.longitude)
-            let Be = dist2(b.latitude, b.longitude, coord.latitude, coord.longitude)
 
-            let D = dist2(coord.latitude, coord.longitude, intercep.latitude, intercep.longitude)  // distance from cursor coord to intercept?
-//            let D = Ae > Be ? Ae : Be   // distance to A or B
+            let dEdge = dist2(a.latitude, a.longitude, intercep.latitude, intercep.longitude)
+            let dCo = dEdge + dist2(coord.latitude, coord.longitude, intercep.latitude, intercep.longitude)  // distance from cursor coord to edge-intercept perpendicular
 
             // respect direction - depending on which side of the line
-            // OR override direction passed in
             let directionNat: StreetSide = (intercep.latitude - coord.latitude) / (b.latitude - a.latitude) > 0 ? .L : .R   // yes i tested this
-            var edirection = directionNat
+            let edirection = direction ?? directionNat  // OR override direction passed in
 
-            if let fdirection = direction {
-                edirection  = fdirection
-            }
-
-            // if D is > segment length forget it
             if
-                edirection == side &&
-                D < Dedge &&   // NO - test range of each line segment
-                D < dResult
-            {  // lineLength fudge ?
-
+                dCo < dMin
+                && edirection == side
+                //&& dCo < dist2(a.latitude, a.longitude, b.latitude, b.longitude) // edge[i] length if D is > segment length forget it
+            {
                 icptR = intercep
                 eResult = (b, a)
-                dResult = D
-                print("result \(name) len: \(dResult)")
+                dMin = dCo
+
+                //print("result \(name) len: \(dResult)")
             }
         }
 
-        return (self, eResult, icptR, dResult)
+        return (self, eResult, icptR, dMin)
     }
 
 }

@@ -76,7 +76,7 @@ class ViewModel: NSObject {
     private func findSchedule(_ coord: CLLocationCoordinate2D, then thenDo: @escaping (RowSearchResult?)->(Void)) {
 
 //        DispatchQueue(label: "\(self)").async {
-            self.searchInternal(coord, then: thenDo)
+        self.searchAllRows(coord, then: thenDo)
 //        }
     }
 
@@ -126,7 +126,7 @@ class ViewModel: NSObject {
 
     }
 
-    private func searchInternal(_ coord: CLLocationCoordinate2D, then doThis: @escaping ((RowSearchResult)?)->(Void)) {
+    private func searchAllRows(_ coord: CLLocationCoordinate2D, then doThis: @escaping ((RowSearchResult)?)->(Void)) {
 
         var dResult = Double.infinity
         var rowResult: RowSearchResult! = nil
@@ -171,6 +171,27 @@ class ViewModel: NSObject {
 
         lastSearchResult = rowResult
         doThis(rowResult)
+    }
+
+    func fullRouteCoordinates(_ aRow: RowStreetSweeping) -> [Coordinate] {
+        let row = self
+        var result: [Coordinate] = []
+        var selectedRows: [RowStreetSweeping] = []
+
+        for rowS in StreetSweepMgr.shared.rows {
+            // find contiguous coordinates
+            if  //rowS.cnn == row.cnn &&
+                rowS.corridor == aRow.corridor
+                && rowS.side == aRow.side
+            {
+                selectedRows += [rowS]
+            }
+        }
+
+        selectedRows = selectedRows.sorted(by: { $0.cnn < $1.cnn })
+        selectedRows.forEach({ result += $0.line })
+
+        return result
     }
 
     func refreshFromCursor() {

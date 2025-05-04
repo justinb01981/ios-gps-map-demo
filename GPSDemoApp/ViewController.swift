@@ -8,7 +8,6 @@
 
 import UIKit
 import MapKit
-//import EventKit
 
 class ViewController: UIViewController {
     
@@ -26,7 +25,7 @@ class ViewController: UIViewController {
 
     private var sweepingManager: StreetSweepMgr!
 
-    var centeredAtStart = false
+    var mapRecenterCounter = 5  // after the initial recenter "stage" it gets annoying
 
     var newMarker: MKPointAnnotation! // represents gps
     var newMarkerCenter: MKPointAnnotation! // represents cursor
@@ -75,13 +74,13 @@ class ViewController: UIViewController {
         if let loc = self.viewModel.sweepLocation() {
             self.mapUI.centerCoordinate = loc
         }
-        self.centeredAtStart = false
+        self.mapRecenterCounter = 2
     })
 
     lazy private var swapButton: BaseControlWithLabel = ButtonViewWithLabel(named: "swap left/right") {
 
         self.viewModel.swapStreetSide(then: {
-            print("\($0)")
+            print("\($0.debugDescription)")
             //self.viewModel.refreshFromCursor()
             self.renderRow(self.viewModel.lastSearchResult.row)
         })
@@ -175,10 +174,10 @@ extension ViewController: ViewModelDelegate {
 
         print("updatedMyLocation: \(tailCoord)")
 
-        if !centeredAtStart {
+        if mapRecenterCounter > 0 {
             mapUI.camera.centerCoordinate = tailCoord
             mapUI.camera.altitude = altitude
-            centeredAtStart = true
+            mapRecenterCounter -= 1
         }
 
         if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: gpsAnnotationViewName)
@@ -214,7 +213,7 @@ extension ViewController: ViewModelDelegate {
         streetView.text = srow.streetText()
         scheduleView.text = srow.scheduleText() //"\(srow.schedText) (\(srow.timeRemain)"
 
-        let polyline = srow.fullRouteCoordinates()
+        let polyline = viewModel.fullRouteCoordinates(srow)
 
         //overlayHackStrokeBothsides = srow.sideOppositeRow != nil // dumb coloring hack
 
