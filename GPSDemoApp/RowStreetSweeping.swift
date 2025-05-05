@@ -188,10 +188,6 @@ class RowStreetSweeping: NSObject {
         cnn = Int(values[RowFields.CNN.rawValue])!
         name = String(values[RowFields.Corridor.rawValue])
 
-        if(cnn == 7667000)
-        {
-            print("found \(7667000)")
-        }
 
         // format here ex:
         // "Wed 2nd and 4th"
@@ -357,21 +353,24 @@ extension RowStreetSweeping {
             let b = line[i+ICPTB]
             let intercep = intercept(coord, a, b)
 
-            let dEdge = dist2(a.latitude, a.longitude, intercep.latitude, intercep.longitude)
-            let dCo = dEdge + dist2(coord.latitude, coord.longitude, intercep.latitude, intercep.longitude)  // distance from cursor coord to edge-intercept perpendicular
+            let dCurs = dist2(coord.latitude, coord.longitude, intercep.latitude, intercep.longitude)  // distance from cursor coord to edge-intercept perpendicular
+            let dEdgerunh = (intercep.latitude - a.latitude) / (b.latitude - a.latitude)
+            let dEdgerunv = (intercep.longitude - a.longitude) / (b.longitude - a.longitude)
 
             // respect direction - depending on which side of the line
             let directionNat: StreetSide = (intercep.latitude - coord.latitude) / (b.latitude - a.latitude) > 0 ? .L : .R   // yes i tested this
             let edirection = direction ?? directionNat  // OR override direction passed in
 
             if
-                dCo < dMin
+                //dEdgerunh > -1.0 && dEdgerunh < 1.0
+                //&& dEdgerunv > -1.0 && dEdgerunv < 1.0
+                dCurs < dMin
                 && edirection == side
-                //&& dCo < dist2(a.latitude, a.longitude, b.latitude, b.longitude) // edge[i] length if D is > segment length forget it
+                && dCurs < dist2(a.latitude, a.longitude, b.latitude, b.longitude) // edge[i] length if D is > segment length forget it
             {
                 icptR = intercep
                 eResult = (b, a)
-                dMin = dCo
+                dMin = dCurs
 
                 //print("result \(name) len: \(dResult)")
             }

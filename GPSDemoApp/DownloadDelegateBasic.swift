@@ -51,7 +51,7 @@ extension DownloadDelegateBasic : URLSessionDownloadDelegate {
         connections[sess]!.doThis(self, Data())
     }
 
-    func urlSession(_ sess: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    func urlSession(_ sess: URLSession, task: URLSessionDataTask, didReceive data: Data) {
         print("\(data)")
     }
 
