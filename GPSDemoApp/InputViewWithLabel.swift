@@ -9,89 +9,143 @@
 import Foundation
 import UIKit
 
-class BaseControlWithLabel: UIView {
+typealias TextInputView = UITextView
+
+protocol BaseControlWithLabel: UIView {
     
-    var input: UIView!
+    var field: UITextView { get }
     
+    var text: String { get set }
+    
+    var switchIsOn: Bool { get }
+
+    var height: Double { get }
+}
+
+class TextViewWithLabel: UIView, BaseControlWithLabel {
+
+    var labelWidth = 128.0
+    var height = 48.0
+    var fieldT: UITextView = TextInputView()
+    var field: TextInputView {
+        return fieldT
+    }
+
     var text: String {
         get {
-            fatalError()
+            return fieldT.text
         }
+
+        set {
+            fieldT.text = newValue
+        }
+
     }
     
     var switchIsOn: Bool {
-        fatalError()
+        fatalError("TextViewWithLabel: switchIsOn called on text field")
+    }
+
+    init(label text: String) {
+
+        super.init(frame: CGRect.infinite)
+
+        self.layer.borderColor = UIColor.gray.cgColor
+        self.layer.borderWidth = 2.0
+        //self.translatesAutoresizingMaskIntoConstraints = false
+        
+        let label = UILabel()
+        label.text = text
+        label.textAlignment = .center
+
+        label.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(label)
+
+        field.layer.borderWidth = 1.0
+        field.layer.borderColor = UIColor.gray.cgColor
+        field.translatesAutoresizingMaskIntoConstraints = false
+        field.isUserInteractionEnabled = false // read only for now
+        addSubview(field)
+
+        addConstraints([
+            field.topAnchor.constraint(equalTo: topAnchor),
+            field.bottomAnchor.constraint(equalTo: bottomAnchor),
+            field.leadingAnchor.constraint(equalTo: label.trailingAnchor, constant: 16.0),
+            field.trailingAnchor.constraint(equalTo: trailingAnchor),
+            // height constraint
+
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16.0),
+            label.topAnchor.constraint(equalTo: topAnchor),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+    }
+    
+    required init(coder: NSCoder) {
+        fatalError("not implemented")
     }
     
     override func resignFirstResponder() -> Bool {
-        return input.resignFirstResponder()
-    }
-}
-
-class TextViewWithLabel: BaseControlWithLabel {
-    
-    private var label: UILabel!
-    
-    override var text: String {
-        get {
-            return (input as! UITextField).text ?? ""
-        }
-    }
-    
-    static func createField(named: String) -> BaseControlWithLabel {
-        let topView = self.self.init()
-        
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        
-        let label = UILabel()
-        label.text = "\(named):"
-        
-        stackView.addArrangedSubview(label)
-        
-        let input = topView.inputElement()
-        input.layer.borderWidth = 2.0
-        input.layer.cornerRadius = 8.0
-        input.layer.borderColor = UIColor.black.cgColor
-        
-        stackView.addArrangedSubview(input)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        topView.addSubview(stackView)
-        
-        topView.addConstraints([
-            topView.topAnchor.constraint(equalTo: stackView.topAnchor),
-            topView.bottomAnchor.constraint(equalTo: stackView.bottomAnchor),
-            topView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            topView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            // height constraint
-            topView.heightAnchor.constraint(equalToConstant: 64)
-        ])
-        
-        topView.label = label
-        topView.input = input
-        return topView
-    }
-    
-    internal func inputElement() -> UIView {
-        let input = UITextField()
-        
-        return input
+        field.resignFirstResponder()
     }
 }
 
 class SwitchViewWithLabel: TextViewWithLabel {
     
-    override internal func inputElement() -> UIView {
-        let s = UISwitch()
-        s.isOn = false
-        return s
+    let inputSwitch = UISwitch()
+    
+    override init(label text: String) {
+        super.init(label: text)
+
+        addSubview(inputSwitch)
+        bringSubviewToFront(inputSwitch)
+    }
+    
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override var switchIsOn: Bool {
-        if let s = self.input as? UISwitch {
-            return s.isOn
+        fatalError("switch unfinished")
+    }
+}
+
+//
+class ButtonViewWithLabel: TextViewWithLabel {
+
+    class actionHandler: UIButton
+    {
+        var actionClo: () -> Void = {}
+        // TODO: easiest/wrongest way to catch touch events
+        override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+
+            actionClo()
         }
-        fatalError()
+    }
+
+    var handler: actionHandler!
+
+    init(named: String, withAction: @escaping () -> Void) {
+        super.init(label: named)
+
+        let c = actionHandler(frame: CGRect(x: super.labelWidth, y: 0, width: super.labelWidth, height: height))
+        c.setTitle(named, for: .normal)
+        c.backgroundColor = UIColor.green
+
+        c.actionClo = withAction
+
+        subviews.forEach({ $0.removeFromSuperview() })// clear
+
+        for d in [c] {
+            addSubview(d)
+
+            d.layer.borderColor = UIColor.black.cgColor
+            d.layer.borderWidth = 1.0
+        }
+
+    }
+
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

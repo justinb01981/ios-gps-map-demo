@@ -18,7 +18,7 @@ class Settings: NSObject {
     var accuracy: Double {
         get {
             if UserDefaults.standard.value(forKey: kAccuracy) == nil {
-                UserDefaults.standard.set(4.0, forKey: kAccuracy)
+                UserDefaults.standard.set(1.0, forKey: kAccuracy)
             }
             return UserDefaults.standard.double(forKey: kAccuracy)
         }
@@ -31,7 +31,7 @@ class Settings: NSObject {
     var distance: Double {
         get {
             if UserDefaults.standard.value(forKey: kDistance) == nil {
-                UserDefaults.standard.set(10.0, forKey: kDistance)
+                UserDefaults.standard.set(1.0, forKey: kDistance)
             }
             return UserDefaults.standard.double(forKey: kDistance)
         }
@@ -40,4 +40,6 @@ class Settings: NSObject {
             UserDefaults.standard.set(newValue, forKey: kDistance)
         }
     }
+
+    var city: String = "sf"
 }

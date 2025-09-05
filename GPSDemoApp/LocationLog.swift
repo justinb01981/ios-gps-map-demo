@@ -54,7 +54,7 @@ class LocationLog: NSObject {
         }
         
         for entry in allData {
-            if let next = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(entry) as? LocationLogEntry {
+            if let next = try? NSKeyedUnarchiver.unarchivedObject(ofClass: LocationLogEntry.self, from: entry) {
                 all += [next]
             }
         }

@@ -9,29 +9,85 @@
 import UIKit
 import MapKit
 
-fileprivate let kDotAnnotationName = "dot"
-
 class ViewController: UIViewController {
-    
-    class DotAnnotationView: MKAnnotationView {
-        override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
-            super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-            
-            self.image = UIImage(named: kDotAnnotationName)
-        }
-        
-        required init?(coder aDecoder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-    }
     
     private var viewModel = ViewModel()
     private var mapUI: MKMapView!
-    private var settingsView: UIView!
-    private var settingsViewDistance: BaseControlWithLabel!
-    private var settingsViewAccuracy: BaseControlWithLabel!
-    private var settingsViewClearLog: BaseControlWithLabel!
-    
+    private var streetView: BaseControlWithLabel = TextViewWithLabel(label: "Street")
+    private var scheduleView: BaseControlWithLabel = TextViewWithLabel(label: "Schedule")
+    private var pathOverlay, debugOverlay, edgeOverlay: MKOverlay!
+    private var pathOverlaySide: StreetSide!
+
+    private let pad = 2.0
+    private let altitude = 1000.0
+
+    @IBOutlet private var controlsView: ControlsView!
+
+    private var sweepingManager: StreetSweepMgr!
+
+    var mapRecenterCounter = 5  // after the initial recenter "stage" it gets annoying
+
+    var newMarker: MKPointAnnotation! // represents gps
+    var newMarkerCenter: MKPointAnnotation! // represents cursor
+
+    var overlayHackStrokeBothsides = false
+
+    lazy private var remindButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Reminder", withAction: {
+        [unowned self] in
+        /*
+         see rfc 2445
+         */
+
+        // use viewModel remindtarget
+        guard let lastRow = viewModel.lastSearchResult?.row else { return }
+
+        viewModel.createReminder(lastRow) {
+            [unowned self] (evOpt) in
+
+            let a: UIAlertController
+
+            if let ev = evOpt {
+                let adjustDate = DateFormatter()
+                adjustDate.dateFormat = "MM/dd"
+                let adjustDate24h = DateFormatter()
+                adjustDate24h.dateFormat = "hh:mm"
+
+                a = UIAlertController(title: "success", message: "event created on \(adjustDate.string(from: ev.startDate!)) at \(adjustDate24h.string(from: ev.startDate!))", preferredStyle: .alert)
+            }
+            else {
+                a = UIAlertController(title: "error", message: "event creation failed\n(probably calendar permission settings)", preferredStyle: .alert)
+            }
+
+            let act = UIAlertAction(title: "OK", style: .default) { alerT in
+                // dismiss
+                a.dismiss(animated: true)
+            }
+
+            a.addAction(act)
+
+            present(a, animated: true)
+        }
+        
+    })
+
+    lazy private var recenterButton: BaseControlWithLabel = ButtonViewWithLabel(named: "Re-center", withAction: {
+        if let loc = self.viewModel.sweepLocation() {
+            self.mapUI.centerCoordinate = loc
+        }
+        self.mapRecenterCounter = 2
+    })
+
+    lazy private var swapButton: BaseControlWithLabel = ButtonViewWithLabel(named: "swap left/right") {
+
+        self.viewModel.swapStreetSide(then: {
+            print("\($0.debugDescription)")
+            //self.viewModel.refreshFromCursor()
+            self.renderRow(self.viewModel.lastSearchResult.row)
+        })
+    }
+
+    var r: UITapGestureRecognizer!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -42,10 +98,12 @@ class ViewController: UIViewController {
         mapUI = MKMapView()
         mapUI.translatesAutoresizingMaskIntoConstraints = false
         mapUI.delegate = self
-        
-        mapUI.register(DotAnnotationView.self, forAnnotationViewWithReuseIdentifier: kDotAnnotationName)
 
-        view.addSubview(mapUI)
+        DotAnnotationView.registerWithMap(mapUI)
+        CursorAnnotationView.registerWithMap(mapUI)
+
+        view.insertSubview(mapUI, at: 3)
+        view.addSubview(controlsView)
         view.addConstraints([
             view.topAnchor.constraint(equalTo: mapUI.topAnchor),
             view.bottomAnchor.constraint(equalTo: mapUI.bottomAnchor),
@@ -53,122 +111,211 @@ class ViewController: UIViewController {
             view.trailingAnchor.constraint(equalTo: mapUI.trailingAnchor)
         ])
 
-        // set up settings view in our view
-        settingsView = UIView()
-        settingsView.backgroundColor = UIColor.gray
-        settingsView.layer.cornerRadius = 8.0
-        settingsViewDistance = TextViewWithLabel.createField(named: "distance(m)")
-        settingsViewAccuracy = TextViewWithLabel.createField(named: "accuracy(m)")
-        settingsViewClearLog = SwitchViewWithLabel.createField(named: "reset log")
-        
-        // TODO -- add reset (clear log) button
-        
-        let closeButton = UIButton()
-        closeButton.setTitle("OK", for: .normal)
-        closeButton.addTarget(self, action: #selector(toggleSettings), for: .touchUpInside)
-        
-        let openButton = UIButton()
-        openButton.setTitle("⚙", for: .normal)
-        openButton.titleLabel?.textColor = UIColor.blue
-        openButton.addTarget(self, action: #selector(toggleSettings), for: .touchUpInside)
-        
-        for view in [settingsView, settingsViewDistance, settingsViewAccuracy, settingsViewClearLog, closeButton, openButton] {
-            view?.translatesAutoresizingMaskIntoConstraints = false
-        }
-        
-        settingsView.addSubview(closeButton)
-        settingsView.addSubview(settingsViewDistance)
-        settingsView.addSubview(settingsViewAccuracy)
-        settingsView.addSubview(settingsViewClearLog)
-        view.addSubview(settingsView)
-        view.addSubview(openButton)
-        view.bringSubviewToFront(settingsView)
+        // controlsView
 
-        settingsView.addConstraints([
-            // vertical constraints
-            settingsView.topAnchor.constraint(equalTo: settingsViewDistance.topAnchor),
-            settingsViewDistance.bottomAnchor.constraint(equalTo: settingsViewAccuracy.topAnchor),
-            settingsViewAccuracy.bottomAnchor.constraint(equalTo: settingsViewClearLog.topAnchor),
-            settingsViewClearLog.bottomAnchor.constraint(equalTo: closeButton.topAnchor),
-            settingsView.bottomAnchor.constraint(equalTo: closeButton.bottomAnchor),
-            // horizontal constraints
-            settingsView.leadingAnchor.constraint(equalTo: settingsViewAccuracy.leadingAnchor),
-            settingsView.trailingAnchor.constraint(equalTo: settingsViewAccuracy.trailingAnchor),
-            settingsView.leadingAnchor.constraint(equalTo: settingsViewDistance.leadingAnchor),
-            settingsView.trailingAnchor.constraint(equalTo: settingsViewDistance.trailingAnchor),
-            settingsView.leadingAnchor.constraint(equalTo: settingsViewClearLog.leadingAnchor),
-            settingsView.trailingAnchor.constraint(equalTo: settingsViewClearLog.trailingAnchor),
-            settingsView.leadingAnchor.constraint(equalTo: closeButton.leadingAnchor),
-            settingsView.trailingAnchor.constraint(equalTo: closeButton.trailingAnchor),
-        ])
+        controlsView.verticalListAdd(streetView)
+        controlsView.verticalListAdd(scheduleView)
+        controlsView.verticalListAdd(remindButton)
+        controlsView.verticalListAdd(recenterButton)
+        controlsView.verticalListAdd(swapButton)
 
-        // constraints in view for settingsView child
-        view.addConstraints([
-            settingsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            settingsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            settingsView.topAnchor.constraint(equalTo: view.topAnchor, constant: 36),
-            settingsView.bottomAnchor.constraint(equalTo: view.topAnchor, constant: 250),
-        ])
-        
-        // constraints in view for openButton
-        view.addConstraints([
-            view.trailingAnchor.constraint(equalTo: openButton.trailingAnchor),
-            view.topAnchor.constraint(equalTo: openButton.topAnchor, constant: -50),
-            view.trailingAnchor.constraint(equalTo: openButton.leadingAnchor, constant: 100),
-            view.topAnchor.constraint(equalTo: openButton.bottomAnchor, constant: -100)
-        ])
+        controlsView.alpha = 0.90
     }
 
-    @objc func toggleSettings() {
-        guard let t1d = Double(settingsViewAccuracy.text),
-            let t2d = Double(settingsViewDistance.text)
-            else {
-                return
-        }
-        
-        settingsView.isHidden = !settingsView.isHidden
-        _ = settingsViewDistance.resignFirstResponder()
-        _ = settingsViewAccuracy.resignFirstResponder()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
 
-        viewModel.accuracy = t1d
-        viewModel.distance = t2d
-        
-        if settingsViewClearLog.switchIsOn {
-            LocationLog.shared.flush()
-            mapUI.removeAnnotations(mapUI.annotations)
-        }
-        
+        sweepingManager = StreetSweepMgr(city: Settings.shared.city)
         MyLocationManager.shared.restart()
+
+        pollCursor()
     }
+
+    func viewDidAppear() {
+        if viewModel.delegate == nil { fatalError() }
+    }
+
+    @objc func clearLog() {
+        LocationLog.shared.flush()
+        mapUI.removeAnnotations(mapUI.annotations)
+    }
+
+    @objc func mapTouched(_ touches: NSSet, _ event: UIEvent) {
+        //print("touch event \(event) \(touches)")
+    }
+
+
+    private var pollCursorLast = CLLocationCoordinate2D()
+
+    private func pollCursor() {
+
+        let c = self.mapUI.centerCoordinate
+
+        DispatchQueue(label: "pollCursor").asyncAfter(deadline: .now()+0.1) {
+            [weak self] in
+
+            if c != self?.pollCursorLast {
+                self?.pollCursorLast = c
+                self?.viewModel.refreshFromCursor()
+            }
+
+            self?.pollCursor()
+        }
+    }
+
 }
 
 extension ViewController: ViewModelDelegate {
-    func update() {
-        
-        for entry in viewModel.allLocations[viewModel.allLocations.index(0, offsetBy: 1) ..< viewModel.allLocations.endIndex] {
-            
-            if let annot = mapUI.dequeueReusableAnnotationView(withIdentifier: kDotAnnotationName) {
-                let newMarker = MKPointAnnotation()
-                annot.annotation = newMarker
-                newMarker.coordinate = CLLocationCoordinate2D(latitude: entry.lat, longitude: entry.long)
-                newMarker.title = "\(entry.time ?? Date())"
+    func targetLocation() -> Coordinate {
+        mapUI.camera.centerCoordinate
+    }
 
-                mapUI.addAnnotation(newMarker)
+    func updatedMyLocation(_ tailCoord: Coordinate) {
+
+        print("updatedMyLocation: \(tailCoord)")
+
+        if mapRecenterCounter > 0 {
+            mapUI.camera.centerCoordinate = tailCoord
+            mapUI.camera.altitude = altitude
+            mapRecenterCounter -= 1
+        }
+
+        if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: gpsAnnotationViewName)
+        {
+            if let old = newMarker {
+                mapUI.removeAnnotation(old)
+            }
+
+            newMarker = MKPointAnnotation()
+            annotGps.annotation = newMarker
+            newMarker.coordinate = tailCoord
+            newMarker.title = gpsAnnotationViewName
+
+            // TODO: move some to viewmodel
+            mapUI.addAnnotation(newMarker) // repeat it anyway
+        }
+    }
+
+    private func renderRow(_ srow: RowStreetSweeping) {
+
+        guard srow.line.count > 0 else {
+            //                print("sweep schedule search no row or empty-line row found")
+            return
+        }
+
+        // remove previous drawing
+        if let removeOver = pathOverlay {
+            streetView.text = "???"
+            scheduleView.text = "???"
+            mapUI.removeOverlay(removeOver)
+        }
+
+        streetView.text = srow.streetText()
+        scheduleView.text = srow.scheduleText() //"\(srow.schedText) (\(srow.timeRemain)"
+
+        let polyline = viewModel.fullRouteCoordinates(srow)
+
+        //overlayHackStrokeBothsides = srow.sideOppositeRow != nil // dumb coloring hack
+
+        pathOverlay = MKPolyline(coordinates: polyline, count: polyline.count)
+        pathOverlaySide = srow.side
+        mapUI.addOverlay(pathOverlay)
+
+        if let intCoord = viewModel.matchedIntercept {
+
+            if let prevOv = debugOverlay {
+                mapUI.removeOverlay(prevOv)
+            }
+            debugOverlay = MKPolyline(coordinates: [intCoord, /*tailCoord*/ mapUI.centerCoordinate], count: 2)
+            mapUI.addOverlay(debugOverlay)
+        }
+
+        if let intEdge = viewModel.matchedEdge {
+
+            let c = [intEdge.0, intEdge.1]
+
+            if edgeOverlay != nil {
+                mapUI.removeOverlay(edgeOverlay)
+            }
+            edgeOverlay = MKPolyline(coordinates:c , count: c.count)
+            mapUI.addOverlay(edgeOverlay)
+        }
+    }
+
+    func updateSchedule(_ tailCoord: Coordinate) {
+
+        viewModel.sweepScheduleSearch(tailCoord) {
+            [unowned self] srow in
+
+            let srow = srow!
+            DispatchQueue.main.async {
+                self.renderRow(srow)
             }
         }
-        
-        // center camera over this new location
-        if let zoomLoc = viewModel.allLocations.last {
-            mapUI.camera.altitude = 1000
-            mapUI.camera.centerCoordinate = CLLocationCoordinate2D(latitude: zoomLoc.lat, longitude: zoomLoc.long)
+
+        DispatchQueue.main.async {
+            [unowned self] in
+
+            if let annotGps = mapUI.dequeueReusableAnnotationView(withIdentifier: CursorAnnotationViewName)
+            {
+                if let old = newMarkerCenter { mapUI.removeAnnotation(old) }
+
+                newMarkerCenter = MKPointAnnotation()
+                annotGps.annotation = newMarkerCenter
+                newMarkerCenter.coordinate = mapUI.centerCoordinate
+                newMarkerCenter.title = CursorAnnotationViewName
+
+                // TODO: move some to viewmodel
+                mapUI.addAnnotation(newMarkerCenter) // repeat it anyway
+            }
         }
+
     }
 }
 
 extension ViewController: MKMapViewDelegate {
+
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        viewModel.refreshFromCursor()
+    }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        let annotView = mapUI.dequeueReusableAnnotationView(withIdentifier: kDotAnnotationName)
+        let annotView = mapUI.dequeueReusableAnnotationView(withIdentifier: annotation.title!!)
         return annotView
+    }
+
+    func mapView(
+        _ mapView: MKMapView,
+        rendererFor overlay: MKOverlay
+    ) -> MKOverlayRenderer {
+
+        guard let overlay = overlay as? MKPolyline
+        else {
+            fatalError()
+        }
+
+        let overRenderer = MKPolylineRenderer(overlay: overlay)
+        if overlay.isEqual(debugOverlay) {
+            overRenderer.strokeColor = UIColor.cyan
+        }
+        else if overlay.isEqual(edgeOverlay) {
+            overRenderer.strokeColor = UIColor.yellow
+        }
+        else {
+            overRenderer.strokeColor = pathOverlaySide == .R ? UIColor.blue : UIColor.green
+        }
+
+        // preserve prior overlay
+        if overlayHackStrokeBothsides {
+//            overRenderer.strokeColor = UIColor.purple
+        }
+        else {
+
+        }
+        // TODO: hilite both sides of the street and both sweep schedules indicated by color?
+        overRenderer.lineWidth = 4.0
+
+        return overRenderer
+
     }
 }
